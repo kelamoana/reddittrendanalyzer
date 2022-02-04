@@ -14,7 +14,7 @@ For windows:
 C:\> env\Scripts\activate.bat
 
 For mac:
-$ source myvenv/bin/activate
+$ source venv/Scripts/activate
 
 ~~~~ It is important to use the venv since the libraries will be the 
 ones that are compatible with the code, as well as the ones that will
