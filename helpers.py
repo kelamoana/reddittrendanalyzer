@@ -3,6 +3,9 @@
 # Sushmasri Katakam
 # Ethan H. Nguyen
 
+import gensim
+
+
 emotions = { i:w for i,w in 
     enumerate(
     ["admiration", "amusement", "anger", "annoyance", "approval", "caring", 
@@ -51,8 +54,11 @@ def preprocess_data_tsv(filename = "data/train.tsv"):
 
 def convert_to_wordemb(prerpocessed_data):
 
+    gensim.models.Word2Vec(prerpocessed_data)
+
     return None
 
 if __name__ == "__main__":
 
-    preprocess_data_tsv()
+    data_dict = preprocess_data_tsv()
+    convert_to_wordemb([text for text, sent in data_dict.values()])
