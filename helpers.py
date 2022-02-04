@@ -12,6 +12,11 @@ emotions = { i:w for i,w in
     "neutral"])
     }
 
+emotionsCategories = {
+"positive": ["amusement", "excitement", "joy", "love", "desire", "optimism", "caring", "pride", "admiration", "gratitude", "relief", "approval"],
+"negative": ["fear", "nervousness", "remorse", "embarrassment", "disappointment", "sadness", "grief", "disgust", "anger", "annoyance", "disapproval"],
+"ambiguous": ["realization", "surprise", "curiosity", "confusion"]
+}
 
 def preprocess_data_tsv(filename = "data/train.tsv"):
     """
