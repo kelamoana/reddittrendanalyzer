@@ -1,4 +1,6 @@
 import helpers
+import numpy as np
+from sklearn.model_selection import train_test_split
 #NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
 # create train & validation data files in the format of BOW (text files)
 
@@ -33,11 +35,50 @@ def createBinaryClassificationFiles(filename):
     file_obj.close()   
 
 def splitData():
-    pass
+    #X = np.genfromtxt('data/logisticRegression/Xbinary.txt')
+    #Y = np.genfromtxt('data/logisticRegression/Ybinary.txt')
+    XbinaryObj = open('data/logisticRegression/Xbinary.txt')
+    YbinaryObj = open('data/logisticRegression/Ybinary.txt')
+    XbinaryList = [line for line in XbinaryObj]
+    YbinaryList = [line for line in YbinaryObj]
+    #X = np.genfromtxt(, dtype=str)
+    #Y = np.loadtxt('data/logisticRegression/Ybinary.txt')
+    
+    Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.7, random_state = 5)
+    
+    xTrainFile = open('data/logisticRegression/XTrainData.txt', 'w')
+    xValidationFile = open('data/logisticRegression/XValidationData.txt', 'w')
+    yTrainFile = open('data/logisticRegression/YTrainData.txt', 'w')
+    yValidationFile = open('data/logisticRegression/YValidationData.txt', 'w')
+    
+    Xtr = list(Xtr)
+    Xva = list(Xva)
+    Ytr = list(Ytr)
+    Yva = list(Yva)
+    
+    for element in Xtr:
+        xTrainFile.write(element)
+    
+    for element in Xva:
+        xValidationFile.write(element)
+
+    for element in Ytr:
+        yTrainFile.write(element)
+    
+    for element in Yva:
+        yValidationFile.write(element)
+    
+    xTrainFile.close()
+    xValidationFile.close()
+    yTrainFile.close()
+    yValidationFile.close()
 
 # do the same for tf-idf
 # then run on logistic regression
 if __name__ == "__main__":
     """ Created Binary Classification Files """
     #createBinaryClassificationFiles("data/train.tsv")
+    """ Split the Binary Classification Files into Training & Validation Files"""
+    #splitData()
+    
 
