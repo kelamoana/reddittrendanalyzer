@@ -3,8 +3,11 @@
 # Sushmasri Katakam
 # Ethan H. Nguyen
 
-import gensim
 
+from sys import set_asyncgen_hooks
+import gensim
+import nltk
+import re
 
 emotions = { i:w for i,w in
     enumerate(
@@ -20,6 +23,8 @@ emotionsCategories = {
 "negative": ["fear", "nervousness", "remorse", "embarrassment", "disappointment", "sadness", "grief", "disgust", "anger", "annoyance", "disapproval"],
 "ambiguous": ["realization", "surprise", "curiosity", "confusion"]
 }
+
+stopwords = set(nltk.corpus.stopwords.words('english'))
 
 def preprocess_data_tsv(filename = "data/train.tsv"):
     """
@@ -50,20 +55,56 @@ def preprocess_data_tsv(filename = "data/train.tsv"):
         line_to_append[1] = [int(i) for i in line_to_append[1].replace(' ', '').split(',')]
 
         # Add to dict
-        file_lines[line_to_append[2]] = (line_to_append[0], line_to_append[1])
+        file_lines[line_to_append[2]] = (filter_stopwords(line_to_append[0]), line_to_append[1])
 
         # Grab next line
         line = file_obj.readline()
 
     return file_lines
 
-def convert_to_wordemb(prerpocessed_data):
+def filter_stopwords(sentence):
+    """
+    Removes stop words from a sentence.
 
-    gensim.models.Word2Vec(prerpocessed_data)
+    Parameters: Sentence - a string of text.
+    Returns: A list of words with no punctuation or stop english words.
+    """
 
-    return None
+    # Split sentence into words
+    word_list = sentence.split()
+
+    # Remove punc and add word for each non-stop word
+    return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
+
+def convert_to_wordemb(prepocessed_data):
+    """
+    Converts preprocessed data into word embeddings
+
+    Parameters: preprocessed_data - a dict of sentences
+    Returns: A dict, where each sentence is now a list of vectors representing each word.
+    """
+    
+    # Initialize Word2Vec model
+    model = gensim.models.Word2Vec(prepocessed_data)
+
+    # Leave this commented out for now 
+    # model.train(prepocessed_data, total_words=10000, epochs=1)
+   
+    # Build the vocab of the model
+    model.build_vocab(prepocessed_data)
+
+    # FOR DEBUG
+    # print([i for i in model.wv.index_to_key])
+
+    embedded_word_list = list()
+
+    for s in prepocessed_data:
+        
+        embedded_word_list.append([model.wv[word] for word in s if word in model.wv])
+
+    return embedded_word_list
 
 if __name__ == "__main__":
 
     data_dict = preprocess_data_tsv()
-    convert_to_wordemb([text for text, sent in data_dict.values()])
+    word_embed_list = convert_to_wordemb([text for text, sent in data_dict.values()])
