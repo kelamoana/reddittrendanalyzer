@@ -8,6 +8,8 @@ from sys import set_asyncgen_hooks
 import gensim
 import nltk
 import re
+import numpy as np
+
 
 emotions = { i:w for i,w in
     enumerate(
@@ -110,7 +112,7 @@ def filter_stopwords(sentence):
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
 
-def convert_to_wordemb(prepocessed_data):
+def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
     """
     Converts preprocessed data into word embeddings
 
@@ -135,7 +137,19 @@ def convert_to_wordemb(prepocessed_data):
 
     for s in prepocessed_data:
         
-        embedded_word_list[s] = [model.wv[word] for word in s if word in model.wv]
+        emb_sub_seq = [0 for i in range(sent_seq_size)]
+        
+        i = 0
+        for word in s:
+            
+            if i == sent_seq_size:
+                break
+            if word in model.wv:
+                emb_sub_seq[i] = model.wv[word]
+
+            i += 1
+
+        embedded_word_list[s] = emb_sub_seq
 
     return embedded_word_list
 
@@ -151,7 +165,7 @@ if __name__ == "__main__":
     for s in sent_and_classes:
         print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
 
-        if i == 1:
+        if i == 20:
             break
 
         i+=1
