@@ -1,5 +1,4 @@
 import praw
-from requests_toolbelt import user_agent
 
 reddit = praw.Reddit(
   client_id = "NcnZ1Hlq-30m8DoVBgSF3A",
@@ -7,7 +6,5 @@ reddit = praw.Reddit(
   user_agent = "python:com.sentimentanalyzer:v1.0.0",
 )
 
-print(reddit.read_only)
-
-for submission in reddit.subreddit("UCI").hot(limit=10):
+for submission in reddit.subreddit("UCI").hot(limit=100):
     print(submission.title)
