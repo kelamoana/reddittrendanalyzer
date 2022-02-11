@@ -124,34 +124,33 @@ def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
     # Initialize Word2Vec model
     model = gensim.models.Word2Vec(prepocessed_data)
 
-    # Leave this commented out for now 
-    # model.train(prepocessed_data, total_words=10000, epochs=1)
+    model.train(prepocessed_data, total_examples=len(prepocessed_data), epochs=10)
    
     # Build the vocab of the model
-    model.build_vocab(prepocessed_data)
+    # model.build_vocab(prepocessed_data)
 
-    # FOR DEBUG
-    # print([i for i in model.wv.index_to_key])
-
-    embedded_word_list = dict()
+    embedded_word_dict = dict()
 
     for s in prepocessed_data:
         
-        emb_sub_seq = [0 for i in range(sent_seq_size)]
+        emb_sub_seq = np.ndarray((sent_seq_size, 100)) # [0 for i in range(sent_seq_size)]
         
         i = 0
-        for word in s:
-            
+        for word in filter_stopwords(s):
             if i == sent_seq_size:
                 break
             if word in model.wv:
-                emb_sub_seq[i] = model.wv[word]
+                j = 0
+                for num in model.wv[word]:
+                    
+                    emb_sub_seq[i][j] = num
+                    j += 1
 
             i += 1
 
-        embedded_word_list[s] = emb_sub_seq
+        embedded_word_dict[s] = emb_sub_seq
 
-    return embedded_word_list
+    return embedded_word_dict
 
 if __name__ == "__main__":
 
@@ -164,8 +163,8 @@ if __name__ == "__main__":
     i = 0
     for s in sent_and_classes:
         print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
-
-        if i == 20:
+        print(f"Embed: {word_embed_dict[s]}")
+        if i == 1:
             break
 
         i+=1
