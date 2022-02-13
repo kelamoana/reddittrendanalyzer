@@ -1,6 +1,10 @@
+from multiprocessing.sharedctypes import Value
 import helpers
 import numpy as np
+import nltk
+from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression, SGDClassifier
 #NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
 # create train & validation data files in the format of BOW (text files)
 
@@ -35,14 +39,10 @@ def createBinaryClassificationFiles(filename):
     file_obj.close()   
 
 def splitData():
-    #X = np.genfromtxt('data/logisticRegression/Xbinary.txt')
-    #Y = np.genfromtxt('data/logisticRegression/Ybinary.txt')
     XbinaryObj = open('data/logisticRegression/Xbinary.txt')
     YbinaryObj = open('data/logisticRegression/Ybinary.txt')
     XbinaryList = [line for line in XbinaryObj]
     YbinaryList = [line for line in YbinaryObj]
-    #X = np.genfromtxt(, dtype=str)
-    #Y = np.loadtxt('data/logisticRegression/Ybinary.txt')
     
     Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.7, random_state = 5)
     
@@ -73,6 +73,91 @@ def splitData():
     yTrainFile.close()
     yValidationFile.close()
 
+contractionsDict = {"aren't":"are not"} # can i take someone else's dictionary from stackoverflow?
+
+def tokenize(filename, matrix):
+    setOfTokens = set()
+    file_obj = open(filename)
+    curr_line_lst = []
+    for line in file_obj:
+        modify_line = line.rstrip("\n").lower()
+        new_line = ""
+        for char in modify_line:
+            #removing punctuation
+            if char not in [',', '.', ';', '?','!',':']:
+                new_line += char
+        new_line_lst = new_line.split()
+        #convert contraction -> expanded form
+        for word in new_line_lst:
+            #if "'" in word:
+            #    contractionsDict.get(word)
+            #ignore if it's a stopword
+            if word not in stopwords.words('english'):
+                curr_line_lst.append(word)
+                setOfTokens.add(word)
+        matrix.append(curr_line_lst)
+        curr_line_lst = [] #reset for the next review
+    #print("number of reviews:", len(matrix))
+    file_obj.close()
+    return list(setOfTokens)
+
+def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
+    for document in tokensMatrix:
+        documentTermRow = np.zeros(len(tokensList))
+        for token in document:
+            try:
+                indexOfToken = tokensList.index(token)
+                documentTermRow[indexOfToken] += 1
+            except ValueError:
+                continue
+        documentTermMatrix.append(documentTermRow)
+    return documentTermMatrix
+
+def reduceVocab(documentTermMatrix, tokensList):
+    rareWordsIndices = set()
+    npVersion = np.array(documentTermMatrix)
+    for col_index in range(npVersion.shape[1]):
+        colValues = npVersion[:,col_index]
+        if sum(colValues) <= 1:
+            rareWordsIndices.add(col_index)
+        '''if sum(colValues) == 2:
+            rareWordsIndices.add(col_index)
+        if sum(colValues) == 3:
+            rareWordsIndices.add(col_index)
+        if sum(colValues) == 4:
+            countOfInstances += 1'''
+    print('extracted rare word occurrances')
+    reducedDocumentTermMatrix = []
+    for row_index in range(len(npVersion)):
+        newRow = []
+        for col_index in range(len(npVersion[row_index])):
+            if col_index not in rareWordsIndices:
+                newRow.append(npVersion[row_index][col_index])
+        reducedDocumentTermMatrix.append(newRow)
+    
+    reducedTokensList = []
+    for token_index in range(len(tokensList)):
+        if token_index not in rareWordsIndices:
+            reducedTokensList.append(tokensList[token_index])
+
+    return reducedDocumentTermMatrix, reducedTokensList
+        
+
+def createTFIDFmodel():
+    pass
+
+def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
+    y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
+    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
+    print(len(y_tr))
+    print(len(documentTermMatrix))
+
+    #model = LogisticRegression(C=5, solver='saga', penalty='elasticnet', l1_ratio=0.5, max_iter=100)
+    model = SGDClassifier()
+    model.fit(documentTermMatrix, y_tr)
+    testAcc = model.score(documentTermMatrixVa, y_va)
+    print("Score of accuracy on test data:", testAcc)
+
 # do the same for tf-idf
 # then run on logistic regression
 if __name__ == "__main__":
@@ -80,5 +165,26 @@ if __name__ == "__main__":
     #createBinaryClassificationFiles("data/train.tsv")
     """ Split the Binary Classification Files into Training & Validation Files"""
     #splitData()
+    """ BOW Logistic Regression """
+    tokenizeMatrix = []
+    docTermMatrix = []
+    tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
+    #print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
+    docTermMatrix = createBOWmodel(docTermMatrix, tokenizeMatrix, tokensInAList)
+    #print("num reviews docTermMatrix", len(docTermMatrix))
+    #print(len(docTermMatrix))
+    print("num features in X",len(docTermMatrix[0]))
     
+    reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
+    print(len(reducedDocTermMatrix))
+    print(len(reducedDocTermMatrix[0]))
+    print(len(reducedTokensLst))
+    #create validation equivalent of BOW model stuff
+    tokenizeMatrixVa = []
+    docTermMatrixVa = []
+    tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
+    docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
+    print("num features in va X", len(docTermMatrixVa[0]))
+    
+    runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
 
