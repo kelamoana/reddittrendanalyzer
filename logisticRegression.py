@@ -12,7 +12,9 @@ def createBinaryClassificationFiles(filename):
     file_obj = open(filename, "r", encoding='utf-8', errors='ignore')
     Xbinary = open('data/logisticRegression/Xbinary.txt', 'w')
     Ybinary = open('data/logisticRegression/Ybinary.txt', 'w')
-
+    #get statistics on how much positive vs negative data we have
+    numPositive = 0
+    numNegative = 0
     for line in file_obj:
         lst_line = line.rstrip().split("\t")
         lst_categories = [int(num) for num in lst_line[1].split(",")]
@@ -26,17 +28,24 @@ def createBinaryClassificationFiles(filename):
                 categoryClassification += 1
             else:
                 categoryClassification -= 1
-        
+                
         if categoryClassification != 0:
-            Xbinary.write(lst_line[0]+"\n")
-            if categoryClassification > 0:
+            if categoryClassification > 0 and numPositive < 9059:
+                Xbinary.write(lst_line[0]+"\n")
                 Ybinary.write(str(1)+"\n")
-            else:
+                numPositive += 1
+            elif categoryClassification < 0:
+                Xbinary.write(lst_line[0]+"\n")
                 Ybinary.write(str(0)+"\n")
+                numNegative += 1
+            else:
+                continue
 
     Ybinary.close()
     Xbinary.close()
-    file_obj.close()   
+    file_obj.close()  
+    print(numPositive)
+    print(numNegative) 
 
 def splitData():
     XbinaryObj = open('data/logisticRegression/Xbinary.txt')
@@ -166,6 +175,7 @@ if __name__ == "__main__":
     """ Split the Binary Classification Files into Training & Validation Files"""
     #splitData()
     """ BOW Logistic Regression """
+    
     tokenizeMatrix = []
     docTermMatrix = []
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
