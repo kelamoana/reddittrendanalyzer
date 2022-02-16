@@ -90,7 +90,7 @@ def get_sentences_and_classes(corpus = "data/logisticRegression/XTrainData.txt",
     while line1 != '':
 
         # Add to dict
-        file_lines[line1] = line2
+        file_lines[line1.replace("\n", '')] = line2.replace("\n", '')
 
         # Grab next line
         line1 = file_obj1.readline()
@@ -108,7 +108,7 @@ def filter_stopwords(sentence):
     """
 
     # Split sentence into words
-    word_list = sentence.split()
+    word_list = sentence.lower().split()
 
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
@@ -152,7 +152,7 @@ def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
                     emb_sub_seq[i][j] = num
                     j += 1
 
-            i += 1
+                i += 1
 
         embedded_word_dict[sent] = (emb_sub_seq, val)
 
