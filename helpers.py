@@ -6,6 +6,7 @@
 
 from sys import set_asyncgen_hooks
 import gensim
+import gensim.downloader as api
 import nltk
 import re
 import numpy as np
@@ -121,22 +122,27 @@ def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
         a list of vectors representing each word.
     """
     
-    # Initialize Word2Vec model
-    model = gensim.models.Word2Vec(prepocessed_data)
+    # # Initialize Word2Vec model
+    # model = gensim.models.Word2Vec(prepocessed_data)
 
-    model.train(prepocessed_data, total_examples=len(prepocessed_data), epochs=10)
+    # model.train(prepocessed_data, total_examples=len(prepocessed_data), epochs=10)
    
-    # Build the vocab of the model
-    # model.build_vocab(prepocessed_data)
+    # # Build the vocab of the model
+    # # model.build_vocab(prepocessed_data)
 
+    corpus = api.load('text8')
+    model = gensim.models.Word2Vec(corpus)
+    
     embedded_word_dict = dict()
+    
+    # print(type(model.wv['dog']))
 
-    for s in prepocessed_data:
+    for sent, val in prepocessed_data.items():
         
         emb_sub_seq = np.ndarray((sent_seq_size, 100)) # [0 for i in range(sent_seq_size)]
         
         i = 0
-        for word in filter_stopwords(s):
+        for word in filter_stopwords(sent):
             if i == sent_seq_size:
                 break
             if word in model.wv:
@@ -148,7 +154,7 @@ def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
 
             i += 1
 
-        embedded_word_dict[s] = emb_sub_seq
+        embedded_word_dict[sent] = (emb_sub_seq, val)
 
     return embedded_word_dict
 
@@ -158,14 +164,14 @@ if __name__ == "__main__":
     # word_embed_list = convert_to_wordemb([text for text, sent in data_dict.values()])
     
     sent_and_classes = get_sentences_and_classes()
-    word_embed_dict = convert_to_wordemb([sent for sent in sent_and_classes])
+    word_embed_dict = convert_to_wordemb(sent_and_classes)
 
-    i = 0
-    for s in sent_and_classes:
-        print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
-        print(f"Embed: {word_embed_dict[s]}")
-        if i == 1:
-            break
+    # i = 0
+    # for s in sent_and_classes:
+    #     print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
+    #     print(f"Embed: {word_embed_dict[s]}")
+    #     if i == 1:
+    #         break
 
-        i+=1
+    #     i+=1
 
