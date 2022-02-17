@@ -9,12 +9,14 @@ import numpy as np
 import os
 
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Embedding, GRU
+from keras.layers import Dense, LSTM, Embedding, GRU, Conv1D, MaxPooling1D, Flatten
 from keras.initializers import Constant
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+import gensim.downloader as api
 
 stopwords = set(nltk.corpus.stopwords.words('english'))
+
 
 def filter_stopwords(sentence):
     """
@@ -30,7 +32,7 @@ def filter_stopwords(sentence):
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
 
-def get_sentences_and_classes(corpus = "data/logisticRegression/XTrainData.txt", classes = "data/logisticRegression/YTrainData.txt"):
+def get_sentences_and_classes(corpus = "data/logisticRegression/XBinary.txt", classes = "data/logisticRegression/YBinary.txt"):
     """
     A function to process all of the training data and turn it
     into a usable data structure.
@@ -44,8 +46,8 @@ def get_sentences_and_classes(corpus = "data/logisticRegression/XTrainData.txt",
     file_obj1 = open(corpus, "r", encoding='utf-8', errors='ignore')
     file_obj2 = open(classes, "r", encoding='utf-8', errors='ignore')
 
-    # Dict to return
-    file_lines = {}
+    # List to return
+    file_lines = []
 
     # Grab the first line
     line1 = file_obj1.readline()
@@ -55,7 +57,7 @@ def get_sentences_and_classes(corpus = "data/logisticRegression/XTrainData.txt",
     while line1 != '':
 
         # Add to dict
-        file_lines[line1.replace("\n", '')] = line2.replace("\n", '')
+        file_lines.append( [line1.replace("\n", ''), line2.replace("\n", '')] )
 
         # Grab next line
         line1 = file_obj1.readline()
@@ -63,7 +65,7 @@ def get_sentences_and_classes(corpus = "data/logisticRegression/XTrainData.txt",
 
     return file_lines
 
-def convertToListOfWords(sentences_with_classes):
+def convert_to_list_of_words(sentences_with_classes):
     lstOfSentencesOfWords = []
     for sentence in sentences_with_classes:
         # we only care about the keys here
@@ -86,35 +88,41 @@ def convertToListOfWords(sentences_with_classes):
 # df.to_csv("movie_data.csv", index=False, encoding="utf-8")
 
 # Grab data from CSV to split
-df = pd.DataFrame()
-df = pd.read_csv('movie_data.csv', encoding='utf-8')
-df.head(3)
+# df = pd.DataFrame()
+# df = pd.read_csv('movie_data.csv', encoding='utf-8')
+# df.head(3)
 
-# Split Data Manually
-X_train = df.loc[:24999, 'review'].values
-Y_train = df.loc[:24999, 'sentiment'].values
+# # Split Data Manually
+# X_train = df.loc[:24999, 'review'].values
+# Y_train = df.loc[:24999, 'sentiment'].values
 
-X_test = df.loc[:25000, 'review'].values
-Y_test = df.loc[:25000, 'sentiment'].values
+# X_test = df.loc[:25000, 'review'].values
+# Y_test = df.loc[:25000, 'sentiment'].values
 
-review_lines = []
-lines = df['review'].values.tolist()
-for sentence in lines:
+
+lines = get_sentences_and_classes()
+sentiments = np.asarray([float(line[1]) for line in lines])
+review_lines = np.asarray(convert_to_list_of_words([line[0] for line in lines]))
+
+'''for sentence in lines:
     # we only care about the keys here
     lstOfWords = filter_stopwords(sentence)
-    review_lines.append(lstOfWords) 
+    review_lines.append(lstOfWords) '''
 
 EMBEDDING_DIM = 100
 
 print("Build model...")
-
-
 #corpus = api.load('text8')
 
 # Word Vector model
-model = gensim.models.Word2Vec(sentences=review_lines, vector_size=EMBEDDING_DIM, window=5, workers=4, min_count=1)
-#filename = "text8Corpus_word2vec.txt"
-filename = "imbd_embedding_word2vec.txt"
+# model = gensim.models.Word2Vec(sentences=review_lines, vector_size=EMBEDDING_DIM, window=5, workers=4, min_count=1)
+# #filename = "text8Corpus_word2vec.txt"
+# filename = "reddit_embedding_word2vec.txt"
+# model.wv.save_word2vec_format(filename, binary=False)
+
+corpus = api.load('text8')
+model = gensim.models.Word2Vec(corpus)
+filename = "reddit_embedding_word2vec.txt"
 model.wv.save_word2vec_format(filename, binary=False)
 
 embeddings_index = {}
@@ -136,9 +144,9 @@ word_index = tokenizer_obj.word_index
 # Define Vocab Size
 vocab_size = len(tokenizer_obj.word_index)
 
-# Pad data, such that the len of e  ach sequence == len of the largest sentence
-review_pad = pad_sequences(sequences, maxlen=20)
-sentiment = df['sentiment'].values
+# Pad data, such that the len of each sequence == len of the largest sentence
+review_pad = pad_sequences(sequences, maxlen=25)
+sentiment = sentiments
 
 # Print the shape of the padded sequences   
 print("Shape of review tensor:", review_pad.shape)
@@ -161,11 +169,11 @@ model = Sequential()
 embedding_layer = Embedding(num_words,
                      EMBEDDING_DIM, 
                      embeddings_initializer=Constant(embedding_matrix),
-                     input_length=20,
+                     input_length=25,
                      trainable=False)
 model.add(embedding_layer)
 #model.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
-model.add(GRU(units=32, dropout=0.2, recurrent_dropout=0.2))
+model.add(LSTM(units=32, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
 
@@ -184,5 +192,19 @@ y_train = sentiment[:-num_validation_samples]
 X_test_pad = review_pad[-num_validation_samples:]
 y_test = sentiment[-num_validation_samples:]
 
-print("Train...")
+print("Training RNN")
+# model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
+
+# CNN instance
+
+model = Sequential()
+model.add(embedding_layer)
+model.add(Conv1D(32, kernel_size=8, activation="relu"))
+model.add(MaxPooling1D(pool_size=2))
+model.add(Flatten())
+model.add(Dense(10, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(loss = 'binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
+
+print("Training CNN")
 model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
