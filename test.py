@@ -193,7 +193,7 @@ X_test_pad = review_pad[-num_validation_samples:]
 y_test = sentiment[-num_validation_samples:]
 
 print("Training RNN")
-# model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
+model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
 
 # CNN instance
 
