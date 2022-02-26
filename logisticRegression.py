@@ -53,7 +53,7 @@ def splitData():
     XbinaryList = [line for line in XbinaryObj]
     YbinaryList = [line for line in YbinaryObj]
     
-    Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.7, random_state = 5)
+    Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.77, random_state = 5)
     
     xTrainFile = open('data/logisticRegression/XTrainData.txt', 'w')
     xValidationFile = open('data/logisticRegression/XValidationData.txt', 'w')
@@ -81,8 +81,6 @@ def splitData():
     xValidationFile.close()
     yTrainFile.close()
     yValidationFile.close()
-
-contractionsDict = {"aren't":"are not"} # can i take someone else's dictionary from stackoverflow?
 
 def tokenize(filename, matrix):
     setOfTokens = set()
@@ -158,10 +156,7 @@ def createTFIDFmodel():
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
     y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
-    print(len(y_tr))
-    print(len(documentTermMatrix))
 
-    #model = LogisticRegression(C=5, solver='saga', penalty='elasticnet', l1_ratio=0.5, max_iter=100)
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
@@ -171,9 +166,9 @@ def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
 # then run on logistic regression
 if __name__ == "__main__":
     """ Created Binary Classification Files """
-    #createBinaryClassificationFiles("data/train.tsv")
+    createBinaryClassificationFiles("data/train.tsv")
     """ Split the Binary Classification Files into Training & Validation Files"""
-    #splitData()
+    splitData()
     """ BOW Logistic Regression """
     
     tokenizeMatrix = []
@@ -197,4 +192,4 @@ if __name__ == "__main__":
     print("num features in va X", len(docTermMatrixVa[0]))
     
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
-
+   

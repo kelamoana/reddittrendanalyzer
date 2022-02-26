@@ -13,6 +13,7 @@ from keras.layers import Dense, LSTM, Embedding, GRU, Conv1D, MaxPooling1D, Flat
 from keras.initializers import Constant
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 import gensim.downloader as api
 
 stopwords = set(nltk.corpus.stopwords.words('english'))
@@ -143,7 +144,7 @@ word_index = tokenizer_obj.word_index
 
 # Define Vocab Size
 vocab_size = len(tokenizer_obj.word_index)
-
+print("VOCAB SIZE", vocab_size)
 # Pad data, such that the len of each sequence == len of the largest sentence
 review_pad = pad_sequences(sequences, maxlen=25)
 sentiment = sentiments
@@ -172,10 +173,10 @@ embedding_layer = Embedding(num_words,
                      input_length=25,
                      trainable=False)
 model.add(embedding_layer)
-#model.add(LSTM(lstm_out, dropout=0.2, recurrent_dropout=0.2))
 model.add(LSTM(units=32, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
-model.compile(loss = 'binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
+opt = Adam(learning_rate=0.02)
+model.compile(loss = 'binary_crossentropy', optimizer=opt, metrics = ['accuracy'])
 
 
 # Shuffle all data and prepare to split
@@ -193,10 +194,11 @@ X_test_pad = review_pad[-num_validation_samples:]
 y_test = sentiment[-num_validation_samples:]
 
 print("Training RNN")
-model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
+#maybe change num of epochs to 20? (before validation goes down)
+model.fit(X_train_pad, y_train, batch_size=128, epochs=20, validation_data=(X_test_pad, y_test), verbose=2)
 
 # CNN instance
-
+'''
 model = Sequential()
 model.add(embedding_layer)
 model.add(Conv1D(32, kernel_size=8, activation="relu"))
@@ -208,3 +210,4 @@ model.compile(loss = 'binary_crossentropy', optimizer='adam', metrics = ['accura
 
 print("Training CNN")
 model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
+'''
