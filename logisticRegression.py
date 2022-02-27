@@ -122,6 +122,60 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
         documentTermMatrix.append(documentTermRow)
     return documentTermMatrix
 
+def createTFIDFmodel(tokensMatrix, tokensList):
+    total_documents = len(tokensMatrix)
+    index_dict = {}
+    i = 0
+    for token in tokensList:
+        index_dict[token] = i
+        i+=1 
+    
+    def count_dict(documents):
+        word_count = {}
+        for word in tokensList:
+            word_count[word] = 0
+            for sent in documents:
+                if word in sent:
+                    word_count[word] += 1
+        return word_count
+    
+    #Term Frequency
+    def termfreq(document, word):
+        N = len(document)
+        occurance = len([token for token in document if token == word])
+        return occurance/N
+
+    def inverse_doc_freq(word):
+        try:
+            word_occurance = word_count[word] + 1
+        except:
+            word_occurance = 1
+        return np.log(total_documents/word_occurance)
+    
+    def tf_idf(document):
+        tf_idf_vec = np.zeros((len(tokensList),))
+        for word in document:
+            tf = termfreq(document,word)
+            idf = inverse_doc_freq(word)
+            
+            value = tf*idf
+            try:
+                tf_idf_vec[index_dict[word]] = value
+            except:
+                pass 
+
+        return tf_idf_vec
+ 
+    word_count = count_dict(tokensMatrix)
+
+    vectors = []
+    for sent in tokensMatrix:
+        vec = tf_idf(sent)
+        vectors.append(vec)
+    
+    return vectors
+
+
 def reduceVocab(documentTermMatrix, tokensList):
     rareWordsIndices = set()
     npVersion = np.array(documentTermMatrix)
@@ -152,9 +206,6 @@ def reduceVocab(documentTermMatrix, tokensList):
     return reducedDocumentTermMatrix, reducedTokensList
         
 
-def createTFIDFmodel():
-    pass
-
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
     y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
@@ -181,11 +232,13 @@ if __name__ == "__main__":
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
     #print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
     docTermMatrix = createBOWmodel(docTermMatrix, tokenizeMatrix, tokensInAList)
+    tfIdfMatrix = createTFIDFmodel(tokenizeMatrix, tokensInAList)
     #print("num reviews docTermMatrix", len(docTermMatrix))
     #print(len(docTermMatrix))
     print("num features in X",len(docTermMatrix[0]))
     
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
+    tfIdfReducedDocTermMatrix, tfIdfReducedTokensLst= reduceVocab(tfIdfMatrix,tokensInAList)
     print(len(reducedDocTermMatrix))
     print(len(reducedDocTermMatrix[0]))
     print(len(reducedTokensLst))
@@ -194,7 +247,9 @@ if __name__ == "__main__":
     docTermMatrixVa = []
     tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
+    tfIdfTermMatrixVa = createTFIDFmodel(tokenizeMatrixVa, reducedTokensLst)
     print("num features in va X", len(docTermMatrixVa[0]))
     
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
+    runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
 
