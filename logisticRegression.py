@@ -9,9 +9,10 @@ from sklearn.linear_model import LogisticRegression, SGDClassifier
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
+    #modify this file to run it through test data instead of the training data
     file_obj = open(filename, "r", encoding='utf-8', errors='ignore')
-    Xbinary = open('data/logisticRegression/Xbinary.txt', 'w')
-    Ybinary = open('data/logisticRegression/Ybinary.txt', 'w')
+    Xbinary = open('data/logisticRegression/XTrainData.txt', 'w')
+    Ybinary = open('data/logisticRegression/YTrainData.txt', 'w')
     #get statistics on how much positive vs negative data we have
     numPositive = 0
     numNegative = 0
@@ -206,7 +207,7 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
+    y_va = np.genfromtxt("data/logisticRegression/YTestData.txt")
 
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
@@ -217,11 +218,11 @@ def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
 # then run on logistic regression
 if __name__ == "__main__":
     """ Created Binary Classification Files """
-    createBinaryClassificationFiles("data/train.tsv")
+    #createBinaryClassificationFiles("data/test.tsv")
     """ Split the Binary Classification Files into Training & Validation Files"""
-    splitData()
+    #splitData()
     """ BOW Logistic Regression """
-
+    
     tokenizeMatrix = []
     docTermMatrix = []
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
@@ -247,3 +248,4 @@ if __name__ == "__main__":
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
     runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
+    

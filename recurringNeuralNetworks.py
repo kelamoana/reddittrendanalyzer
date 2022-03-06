@@ -33,7 +33,7 @@ def filter_stopwords(sentence):
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
 
-def get_sentences_and_classes(corpus = "data/logisticRegression/XBinary.txt", classes = "data/logisticRegression/YBinary.txt"):
+def get_sentences_and_classes(corpus = "data/Xtrain_testRNN.txt", classes = "data/Ytrain_testRNN.txt"):
     """
     A function to process all of the training data and turn it
     into a usable data structure.
@@ -73,42 +73,11 @@ def convert_to_list_of_words(sentences_with_classes):
         lstOfWords = filter_stopwords(sentence)
         lstOfSentencesOfWords.append(lstOfWords)
     return lstOfSentencesOfWords
-        
-# # Grabbing Data File and turning into CSV
-# folder = 'aclImdb'
-# labels = {'pos': 1, 'neg': 0}
-# df = pd.DataFrame()
-# for f in ('test', 'train'):    
-#     for l in ('pos', 'neg'):
-#         path = os.path.join(folder, f, l)
-#         for file in os.listdir (path) :
-#             with open(os.path.join(path, file),'r', encoding='utf-8') as infile:
-#                 txt = infile.read()
-#             df = df.append([[txt, labels[l]]],ignore_index=True)
-# df.columns = ['review', 'sentiment']
-# df.to_csv("movie_data.csv", index=False, encoding="utf-8")
-
-# Grab data from CSV to split
-# df = pd.DataFrame()
-# df = pd.read_csv('movie_data.csv', encoding='utf-8')
-# df.head(3)
-
-# # Split Data Manually
-# X_train = df.loc[:24999, 'review'].values
-# Y_train = df.loc[:24999, 'sentiment'].values
-
-# X_test = df.loc[:25000, 'review'].values
-# Y_test = df.loc[:25000, 'sentiment'].values
 
 
 lines = get_sentences_and_classes()
 sentiments = np.asarray([float(line[1]) for line in lines])
 review_lines = np.asarray(convert_to_list_of_words([line[0] for line in lines]))
-
-'''for sentence in lines:
-    # we only care about the keys here
-    lstOfWords = filter_stopwords(sentence)
-    review_lines.append(lstOfWords) '''
 
 EMBEDDING_DIM = 100
 
@@ -180,9 +149,9 @@ model.compile(loss = 'binary_crossentropy', optimizer=opt, metrics = ['accuracy'
 
 
 # Shuffle all data and prepare to split
-VALIDATION_SPLIT = 0.2
+VALIDATION_SPLIT = 0.1873
 indices = np.arange(review_pad.shape[0])
-np.random.shuffle(indices)
+#np.random.shuffle(indices)
 review_pad = review_pad[indices]
 sentiment = sentiment[indices]
 num_validation_samples = int(VALIDATION_SPLIT * review_pad.shape[0])
@@ -196,18 +165,3 @@ y_test = sentiment[-num_validation_samples:]
 print("Training RNN")
 #maybe change num of epochs to 20? (before validation goes down)
 model.fit(X_train_pad, y_train, batch_size=128, epochs=20, validation_data=(X_test_pad, y_test), verbose=2)
-
-# CNN instance
-'''
-model = Sequential()
-model.add(embedding_layer)
-model.add(Conv1D(32, kernel_size=8, activation="relu"))
-model.add(MaxPooling1D(pool_size=2))
-model.add(Flatten())
-model.add(Dense(10, activation='relu'))
-model.add(Dense(1, activation='sigmoid'))
-model.compile(loss = 'binary_crossentropy', optimizer='adam', metrics = ['accuracy'])
-
-print("Training CNN")
-model.fit(X_train_pad, y_train, batch_size=128, epochs=25, validation_data=(X_test_pad, y_test), verbose=2)
-'''
