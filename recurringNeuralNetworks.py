@@ -39,7 +39,7 @@ def get_sentences_and_classes(corpus = "data/Xtrain_testRNN.txt", classes = "dat
     into a usable data structure.
 
     Parameters: corpus - A txt file, classes - a txt file
-    Returns: A dict where each val is a tuple containing
+    Returns: A list where each val is a tuple containing
     the text and a list of its sentiments.
     """
 
@@ -118,7 +118,7 @@ print("VOCAB SIZE", vocab_size)
 review_pad = pad_sequences(sequences, maxlen=25)
 sentiment = sentiments
 
-# Print the shape of the padded sequences   
+# Print the shape of the padded sequences
 print("Shape of review tensor:", review_pad.shape)
 print("Shape of sentiment tensor:", sentiment.shape)
 
@@ -137,7 +137,7 @@ print(num_words)
 # Define RNN model
 model = Sequential()
 embedding_layer = Embedding(num_words,
-                     EMBEDDING_DIM, 
+                     EMBEDDING_DIM,
                      embeddings_initializer=Constant(embedding_matrix),
                      input_length=25,
                      trainable=False)
