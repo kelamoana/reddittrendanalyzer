@@ -4,6 +4,8 @@
 # Ethan H. Nguyen
 
 
+from operator import neg
+from posixpath import split
 from sys import set_asyncgen_hooks
 import gensim
 import gensim.downloader as api
@@ -158,23 +160,6 @@ def convert_to_wordemb(prepocessed_data, sent_seq_size = 15):
 
     return embedded_word_dict
 
-if __name__ == "__main__":
-
-    # data_dict = preprocess_data_tsv()
-    # word_embed_list = convert_to_wordemb([text for text, sent in data_dict.values()])
-    
-    sent_and_classes = get_sentences_and_classes()
-    word_embed_dict = convert_to_wordemb(sent_and_classes)
-
-    # i = 0
-    # for s in sent_and_classes:
-    #     print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
-    #     print(f"Embed: {word_embed_dict[s]}")
-    #     if i == 1:
-    #         break
-
-    #     i+=1
-
 # Print iterations progress
 def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
     """
@@ -196,3 +181,72 @@ def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1
     # Print New Line on Complete
     if iteration == total: 
         print()
+
+def convert_twitter_to_binary_classes(tsv_name, new_file_name):
+
+    # Create File Obj
+    file_to_read = open(tsv_name, "r", encoding='utf-8', errors='ignore')
+    file_to_write = open(new_file_name, "w", encoding='utf-8', errors='ignore')
+    
+    # Grab the first line
+    line = file_to_read.readline()
+
+    # Skip the headers of the file
+    line = file_to_read.readline()
+
+    # Create Count to track Ratio of Pos to Neg
+    pos_count = 1
+    neg_count = 1
+
+    # While we haven't reached the end
+    while line != '':
+
+        # Create list of [text, sentiments, id] and remove newlines
+        split_line = line.split('\t')
+
+        # Change Sentiment to 0 or 1
+        if int(split_line[1]) in {1, 2}:
+            
+            split_line[1] = "1"
+
+            if pos_count <= neg_count:
+                # Write the new line to the file
+                file_to_write.write(split_line[0] + '\t' + split_line[1] + '\n')
+                pos_count += 1
+        else:
+            split_line[1] = "0"
+
+            if neg_count <= pos_count:
+                # Write the new line to the file
+                file_to_write.write(split_line[0] + '\t' + split_line[1] + '\n')
+                neg_count += 1
+
+        # Grab next line
+        line = file_to_read.readline()
+
+    print(f"POS COUNT: {pos_count} and NEG COUNT: {neg_count}. RATIO: \
+        {pos_count/(pos_count+neg_count)}: \
+        {neg_count/(pos_count+neg_count)}")
+
+if __name__ == "__main__":
+
+    # data_dict = preprocess_data_tsv()
+    # word_embed_list = convert_to_wordemb([text for text, sent in data_dict.values()])
+    
+    # sent_and_classes = get_sentences_and_classes()
+    # word_embed_dict = convert_to_wordemb(sent_and_classes)
+
+    # i = 0
+    # for s in sent_and_classes:
+    #     print(f"Sentence: {s} -------> Class: {sent_and_classes[s]}")
+    #     print(f"Embed: {word_embed_dict[s]}")
+    #     if i == 1:
+    #         break
+
+    #     i+=1
+
+    print("Executing Main in Helpers.py...")
+
+    convert_twitter_to_binary_classes("data/Twitter/test.txt", "data/Twitter/testBinary.txt")
+    convert_twitter_to_binary_classes("data/Twitter/training.txt", "data/Twitter/trainingBinary.txt")
+    convert_twitter_to_binary_classes("data/Twitter/validation.txt", "data/Twitter/validationBinary.txt")
