@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
+from collections import Counter
 #NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
 # create train & validation data files in the format of BOW (text files)
 
@@ -123,57 +124,44 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
     return documentTermMatrix
 
 def createTFIDFmodel(tokensMatrix, tokensList):
-    total_documents = len(tokensMatrix)
-    index_dict = {}
-    i = 0
-    for token in tokensList:
-        index_dict[token] = i
-        i+=1 
-    
-    def count_dict(documents):
-        word_count = {}
-        for word in tokensList:
-            word_count[word] = 0
-            for sent in documents:
-                if word in sent:
-                    word_count[word] += 1
-        return word_count
-    
-    #Term Frequency
-    def termfreq(document, word):
-        N = len(document)
-        occurance = len([token for token in document if token == word])
-        return occurance/N
 
-    def inverse_doc_freq(word):
-        try:
-            word_occurance = word_count[word] + 1
-        except:
-            word_occurance = 1
-        return np.log(total_documents/word_occurance)
+    N = len(tokensMatrix)
     
-    def tf_idf(document):
-        tf_idf_vec = np.zeros((len(tokensList),))
-        for word in document:
-            tf = termfreq(document,word)
-            idf = inverse_doc_freq(word)
-            
-            value = tf*idf
+    #document frequency
+    DF = {}
+    for doc in tokensMatrix:
+        for docToken in doc:
             try:
-                tf_idf_vec[index_dict[word]] = value
+                DF[docToken]+=1
             except:
-                pass 
+                DF[docToken] = 1
+    print(len(DF) == len(tokensList))
 
-        return tf_idf_vec
- 
-    word_count = count_dict(tokensMatrix)
 
-    vectors = []
-    for sent in tokensMatrix:
-        vec = tf_idf(sent)
-        vectors.append(vec)
+    #tf idf
+    tf_idf = {}
+    for i in range(N):
+        tokens = tokensMatrix[i]
+        counter = Counter(tokens)
+        for token in np.unique(tokens):
+            tf = counter[token] / len(tokensList)
+            df = DF[token]
+            idf = np.log(N/(df+1))
+            curr_tuple = tuple((doc,token))
+            tf_idf[curr_tuple] = tf*idf
     
-    return vectors
+
+    #document vectorization
+    D = np.zeros((N, len(tokensList)))
+    for i in tf_idf:
+        ind = tokensList.index(i[1])
+        D[i[0]][ind] = tf_idf[i]
+    
+    return D
+    
+
+
+        
 
 
 def reduceVocab(documentTermMatrix, tokensList):
