@@ -1,11 +1,13 @@
 from multiprocessing.sharedctypes import Value
 import helpers
 import numpy as np
+import math
 import nltk
 from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST
+from collections import Counter
+#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
@@ -110,6 +112,7 @@ def tokenize(filename, matrix):
     return list(setOfTokens)
 
 def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
+    print
     for document in tokensMatrix:
         documentTermRow = np.zeros(len(tokensList))
         for token in document:
@@ -121,58 +124,39 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
         documentTermMatrix.append(documentTermRow)
     return documentTermMatrix
 
-def createTFIDFmodel(tokensMatrix, tokensList):
-    total_documents = len(tokensMatrix)
-    index_dict = {}
-    i = 0
-    for token in tokensList:
-        index_dict[token] = i
-        i+=1
+def createTFIDFmodel(bow_model):
 
-    def count_dict(documents):
-        word_count = {}
-        for word in tokensList:
-            word_count[word] = 0
-            for sent in documents:
-                if word in sent:
-                    word_count[word] += 1
-        return word_count
+    print("here1")
+    bow_model = np.array(bow_model,dtype=object)
+    print(bow_model.ndim)
 
-    #Term Frequency
-    def termfreq(document, word):
-        N = len(document)
-        occurance = len([token for token in document if token == word])
-        return occurance/N
+    N = len(bow_model)
+    print("here2")
+    #calculate IDF for all words
+    IDF = {}
+    for i in range(len(bow_model[0])):
+        IDF[i] = math.log(len(bow_model)/sum(bow_model[:,i]))
+    
+    #replace values in tokensMatrix with tfidf
+    print("here3")
 
-    def inverse_doc_freq(word):
-        try:
-            word_occurance = word_count[word] + 1
-        except:
-            word_occurance = 1
-        return np.log(total_documents/word_occurance)
+    for i in range(len(bow_model)):
+        for j in range(len(bow_model[0])):
+            bow_model[i][j] = (bow_model[i][j] / (1+ sum(bow_model[i])))*IDF[j]
 
-    def tf_idf(document):
-        tf_idf_vec = np.zeros((len(tokensList),))
-        for word in document:
-            tf = termfreq(document,word)
-            idf = inverse_doc_freq(word)
+    print("here4")
+    
+    return bow_model
 
-            value = tf*idf
-            try:
-                tf_idf_vec[index_dict[word]] = value
-            except:
-                pass
 
-        return tf_idf_vec
 
-    word_count = count_dict(tokensMatrix)
 
-    vectors = []
-    for sent in tokensMatrix:
-        vec = tf_idf(sent)
-        vectors.append(vec)
 
-    return vectors
+    
+    
+
+
+        
 
 
 def reduceVocab(documentTermMatrix, tokensList):
@@ -228,7 +212,7 @@ if __name__ == "__main__":
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
     #print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
     docTermMatrix = createBOWmodel(docTermMatrix, tokenizeMatrix, tokensInAList)
-    tfIdfMatrix = createTFIDFmodel(tokenizeMatrix, tokensInAList)
+    tfIdfMatrix = createTFIDFmodel(docTermMatrix)
     #print("num reviews docTermMatrix", len(docTermMatrix))
     #print(len(docTermMatrix))
     print("num features in X",len(docTermMatrix[0]))
@@ -243,7 +227,7 @@ if __name__ == "__main__":
     docTermMatrixVa = []
     tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
-    tfIdfTermMatrixVa = createTFIDFmodel(tokenizeMatrixVa, reducedTokensLst)
+    tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     print("num features in va X", len(docTermMatrixVa[0]))
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
