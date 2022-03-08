@@ -10,16 +10,17 @@ from collections import Counter
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
+    #modify this file to run it through test data instead of the training data
     file_obj = open(filename, "r", encoding='utf-8', errors='ignore')
-    Xbinary = open('data/logisticRegression/Xbinary.txt', 'w')
-    Ybinary = open('data/logisticRegression/Ybinary.txt', 'w')
+    Xbinary = open('data/logisticRegression/XTrainData.txt', 'w')
+    Ybinary = open('data/logisticRegression/YTrainData.txt', 'w')
     #get statistics on how much positive vs negative data we have
     numPositive = 0
     numNegative = 0
     for line in file_obj:
         lst_line = line.rstrip().split("\t")
         lst_categories = [int(num) for num in lst_line[1].split(",")]
-        
+
         #mark as positive, negative, or don't include it(ambiguous/neutral)
         categoryClassification = 0
         for category in lst_categories:
@@ -29,7 +30,7 @@ def createBinaryClassificationFiles(filename):
                 categoryClassification += 1
             else:
                 categoryClassification -= 1
-                
+
         if categoryClassification != 0:
             if categoryClassification > 0 and numPositive < 9059:
                 Xbinary.write(lst_line[0]+"\n")
@@ -44,46 +45,44 @@ def createBinaryClassificationFiles(filename):
 
     Ybinary.close()
     Xbinary.close()
-    file_obj.close()  
+    file_obj.close()
     print(numPositive)
-    print(numNegative) 
+    print(numNegative)
 
 def splitData():
     XbinaryObj = open('data/logisticRegression/Xbinary.txt')
     YbinaryObj = open('data/logisticRegression/Ybinary.txt')
     XbinaryList = [line for line in XbinaryObj]
     YbinaryList = [line for line in YbinaryObj]
-    
-    Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.7, random_state = 5)
-    
+
+    Xtr, Xva, Ytr, Yva = train_test_split(XbinaryList,YbinaryList, train_size = 0.77, random_state = 5)
+
     xTrainFile = open('data/logisticRegression/XTrainData.txt', 'w')
     xValidationFile = open('data/logisticRegression/XValidationData.txt', 'w')
     yTrainFile = open('data/logisticRegression/YTrainData.txt', 'w')
     yValidationFile = open('data/logisticRegression/YValidationData.txt', 'w')
-    
+
     Xtr = list(Xtr)
     Xva = list(Xva)
     Ytr = list(Ytr)
     Yva = list(Yva)
-    
+
     for element in Xtr:
         xTrainFile.write(element)
-    
+
     for element in Xva:
         xValidationFile.write(element)
 
     for element in Ytr:
         yTrainFile.write(element)
-    
+
     for element in Yva:
         yValidationFile.write(element)
-    
+
     xTrainFile.close()
     xValidationFile.close()
     yTrainFile.close()
     yValidationFile.close()
-
-contractionsDict = {"aren't":"are not"} # can i take someone else's dictionary from stackoverflow?
 
 def tokenize(filename, matrix):
     setOfTokens = set()
@@ -185,22 +184,19 @@ def reduceVocab(documentTermMatrix, tokensList):
             if col_index not in rareWordsIndices:
                 newRow.append(npVersion[row_index][col_index])
         reducedDocumentTermMatrix.append(newRow)
-    
+
     reducedTokensList = []
     for token_index in range(len(tokensList)):
         if token_index not in rareWordsIndices:
             reducedTokensList.append(tokensList[token_index])
 
     return reducedDocumentTermMatrix, reducedTokensList
-        
+
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
-    print(len(y_tr))
-    print(len(documentTermMatrix))
+    y_va = np.genfromtxt("data/logisticRegression/YTestData.txt")
 
-    #model = LogisticRegression(C=5, solver='saga', penalty='elasticnet', l1_ratio=0.5, max_iter=100)
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
@@ -210,7 +206,7 @@ def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
 # then run on logistic regression
 if __name__ == "__main__":
     """ Created Binary Classification Files """
-    #createBinaryClassificationFiles("data/train.tsv")
+    #createBinaryClassificationFiles("data/test.tsv")
     """ Split the Binary Classification Files into Training & Validation Files"""
     #splitData()
     """ BOW Logistic Regression """
@@ -224,7 +220,7 @@ if __name__ == "__main__":
     #print("num reviews docTermMatrix", len(docTermMatrix))
     #print(len(docTermMatrix))
     print("num features in X",len(docTermMatrix[0]))
-    
+
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
     tfIdfReducedDocTermMatrix, tfIdfReducedTokensLst= reduceVocab(tfIdfMatrix,tokensInAList)
     print(len(reducedDocTermMatrix))
@@ -237,7 +233,7 @@ if __name__ == "__main__":
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
     tfIdfTermMatrixVa = createTFIDFmodel(tokenizeMatrixVa, reducedTokensLst)
     print("num features in va X", len(docTermMatrixVa[0]))
-    
+
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
     runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
-
+    
