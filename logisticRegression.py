@@ -1,6 +1,7 @@
 from multiprocessing.sharedctypes import Value
 import helpers
 import numpy as np
+import math
 import nltk
 from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
@@ -111,6 +112,7 @@ def tokenize(filename, matrix):
     return list(setOfTokens)
 
 def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
+    print
     for document in tokensMatrix:
         documentTermRow = np.zeros(len(tokensList))
         for token in document:
@@ -122,41 +124,35 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
         documentTermMatrix.append(documentTermRow)
     return documentTermMatrix
 
-def createTFIDFmodel(tokensMatrix, tokensList):
+def createTFIDFmodel(bow_model):
 
-    N = len(tokensMatrix)
+    print("here1")
+    bow_model = np.array(bow_model,dtype=object)
+    print(bow_model.ndim)
+
+    N = len(bow_model)
+    print("here2")
+    #calculate IDF for all words
+    IDF = {}
+    for i in range(len(bow_model[0])):
+        IDF[i] = math.log(len(bow_model)/sum(bow_model[:,i]))
     
-    #document frequency
-    DF = {}
-    for doc in tokensMatrix:
-        for docToken in doc:
-            try:
-                DF[docToken]+=1
-            except:
-                DF[docToken] = 1
-    print(len(DF) == len(tokensList))
+    #replace values in tokensMatrix with tfidf
+    print("here3")
 
+    for i in range(len(bow_model)):
+        for j in range(len(bow_model[0])):
+            bow_model[i][j] = (bow_model[i][j] / sum(bow_model[i]))*IDF[j]
 
-    #tf idf
-    tf_idf = {}
-    for i in range(N):
-        tokens = tokensMatrix[i]
-        counter = Counter(tokens)
-        for token in np.unique(tokens):
-            tf = counter[token] / len(tokensList)
-            df = DF[token]
-            idf = np.log(N/(df+1))
-            curr_tuple = tuple((doc,token))
-            tf_idf[curr_tuple] = tf*idf
+    print("here4")
     
+    return bow_model
 
-    #document vectorization
-    D = np.zeros((N, len(tokensList)))
-    for i in tf_idf:
-        ind = tokensList.index(i[1])
-        D[i[0]][ind] = tf_idf[i]
+
+
+
+
     
-    return D
     
 
 
@@ -216,7 +212,7 @@ if __name__ == "__main__":
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
     #print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
     docTermMatrix = createBOWmodel(docTermMatrix, tokenizeMatrix, tokensInAList)
-    tfIdfMatrix = createTFIDFmodel(tokenizeMatrix, tokensInAList)
+    tfIdfMatrix = createTFIDFmodel(docTermMatrix)
     #print("num reviews docTermMatrix", len(docTermMatrix))
     #print(len(docTermMatrix))
     print("num features in X",len(docTermMatrix[0]))
@@ -231,7 +227,7 @@ if __name__ == "__main__":
     docTermMatrixVa = []
     tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
-    tfIdfTermMatrixVa = createTFIDFmodel(tokenizeMatrixVa, reducedTokensLst)
+    tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     print("num features in va X", len(docTermMatrixVa[0]))
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
