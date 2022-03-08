@@ -142,7 +142,7 @@ def createTFIDFmodel(bow_model):
 
     for i in range(len(bow_model)):
         for j in range(len(bow_model[0])):
-            bow_model[i][j] = (bow_model[i][j] / sum(bow_model[i]))*IDF[j]
+            bow_model[i][j] = (bow_model[i][j] / (1+ sum(bow_model[i])))*IDF[j]
 
     print("here4")
     
