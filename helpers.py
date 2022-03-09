@@ -182,12 +182,12 @@ def print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1
     if iteration == total: 
         print()
 
-def convert_twitter_to_binary_classes(tsv_name, new_file_name):
+def convert_twitter_to_binary_classes(tsv_name, path, new_file_name):
 
     # Create File Obj
     file_to_read = open(tsv_name, "r", encoding='utf-8', errors='ignore')
-    file_to_write = open(new_file_name, "w", encoding='utf-8', errors='ignore')
-    
+    file_x = open(path + "X" + new_file_name, "w", encoding='utf-8', errors='ignore')
+    file_y = open(path + "Y" + new_file_name, "w", encoding='utf-8', errors='ignore')
     # Grab the first line
     line = file_to_read.readline()
 
@@ -204,21 +204,23 @@ def convert_twitter_to_binary_classes(tsv_name, new_file_name):
         # Create list of [text, sentiments, id] and remove newlines
         split_line = line.split('\t')
 
-        # Change Sentiment to 0 or 1
+        #Change Sentiment to 0 or 1
         if int(split_line[1]) in {1, 2}:
             
             split_line[1] = "1"
 
             if pos_count <= neg_count:
                 # Write the new line to the file
-                file_to_write.write(split_line[0] + '\t' + split_line[1] + '\n')
+                file_x.write(split_line[0] + '\n')
+                file_y.write(split_line[1] + '\n')
                 pos_count += 1
         else:
             split_line[1] = "0"
 
             if neg_count <= pos_count:
                 # Write the new line to the file
-                file_to_write.write(split_line[0] + '\t' + split_line[1] + '\n')
+                file_x.write(split_line[0] + '\n')
+                file_y.write(split_line[1] + '\n')
                 neg_count += 1
 
         # Grab next line
@@ -247,6 +249,6 @@ if __name__ == "__main__":
 
     print("Executing Main in Helpers.py...")
 
-    convert_twitter_to_binary_classes("data/Twitter/test.txt", "data/Twitter/testBinary.txt")
-    convert_twitter_to_binary_classes("data/Twitter/training.txt", "data/Twitter/trainingBinary.txt")
-    convert_twitter_to_binary_classes("data/Twitter/validation.txt", "data/Twitter/validationBinary.txt")
+    convert_twitter_to_binary_classes("data/Twitter/test.txt", "data/Twitter/", "testBinary.txt")
+    convert_twitter_to_binary_classes("data/Twitter/training.txt", "data/Twitter/", "trainingBinary.txt")
+    convert_twitter_to_binary_classes("data/Twitter/validation.txt", "data/Twitter/", "validationBinary.txt")
