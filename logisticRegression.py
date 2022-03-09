@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from collections import Counter
-#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
+#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
@@ -125,37 +125,31 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
 
 def createTFIDFmodel(bow_model):
 
-    print("here1")
     bow_model = np.array(bow_model,dtype=object)
-    print(bow_model.ndim)
 
     N = len(bow_model)
-    print("here2")
     #calculate IDF for all words
     IDF = {}
     for i in range(len(bow_model[0])):
-        IDF[i] = math.log(len(bow_model)/sum(bow_model[:,i]))
-    
+        IDF[i] = math.log(len(bow_model)/ (1+sum(bow_model[:,i])))
+
     #replace values in tokensMatrix with tfidf
-    print("here3")
+
+    tfIdfModel = []
 
     for i in range(len(bow_model)):
-        for j in range(len(bow_model[0])):
-            bow_model[i][j] = (bow_model[i][j] / (1+ sum(bow_model[i])))*IDF[j]
-
-    print("here4")
-    
-    return bow_model
-
-
-
+        documentTermRow = np.zeros(len(bow_model[0]))
+        #query for all elements where val > 0
+        def condition(x): return x > 0
+        output = [idx for idx, element in enumerate(bow_model[i]) if condition(element)]
+        for num in output:
+            documentTermRow[num] = (bow_model[i][num] / (1+ sum(bow_model[i])))*IDF[num]
+        tfIdfModel.append(documentTermRow)
 
 
-    
-    
+    return tfIdfModel
 
 
-        
 
 
 def reduceVocab(documentTermMatrix, tokensList):
@@ -196,7 +190,6 @@ def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
     print("Score of accuracy on test data:", testAcc)
-
 # do the same for tf-idf
 # then run on logistic regression
 if __name__ == "__main__":
@@ -205,7 +198,7 @@ if __name__ == "__main__":
     """ Split the Binary Classification Files into Training & Validation Files"""
     #splitData()
     """ BOW Logistic Regression """
-    
+
     tokenizeMatrix = []
     docTermMatrix = []
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
@@ -217,7 +210,6 @@ if __name__ == "__main__":
     print("num features in X",len(docTermMatrix[0]))
 
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
-    tfIdfReducedDocTermMatrix, tfIdfReducedTokensLst= reduceVocab(tfIdfMatrix,tokensInAList)
     print(len(reducedDocTermMatrix))
     print(len(reducedDocTermMatrix[0]))
     print(len(reducedTokensLst))
@@ -229,6 +221,5 @@ if __name__ == "__main__":
     tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     print("num features in va X", len(docTermMatrixVa[0]))
 
-    #runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
-    runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
-    
+    runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
+    runLogisticRegressionModel(reducedDocTermMatrix,tfIdfTermMatrixVa)
