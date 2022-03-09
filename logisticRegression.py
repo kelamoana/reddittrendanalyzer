@@ -135,18 +135,26 @@ def createTFIDFmodel(bow_model):
     #calculate IDF for all words
     IDF = {}
     for i in range(len(bow_model[0])):
-        IDF[i] = math.log(len(bow_model)/sum(bow_model[:,i]))
+        IDF[i] = math.log(len(bow_model)/ (1+sum(bow_model[:,i])))
     
     #replace values in tokensMatrix with tfidf
     print("here3")
 
+    tfIdfModel = []
+
     for i in range(len(bow_model)):
-        for j in range(len(bow_model[0])):
-            bow_model[i][j] = (bow_model[i][j] / (1+ sum(bow_model[i])))*IDF[j]
+        documentTermRow = np.zeros(len(bow_model[0]))
+        #query for all elements where val > 0
+        def condition(x): return x > 0
+        output = [idx for idx, element in enumerate(bow_model[i]) if condition(element)]
+        for num in output:
+            documentTermRow[num] = (bow_model[i][num] / (1+ sum(bow_model[i])))*IDF[num]
+        tfIdfModel.append(documentTermRow)
+        
 
     print("here4")
     
-    return bow_model
+    return tfIdfModel
 
 
 
