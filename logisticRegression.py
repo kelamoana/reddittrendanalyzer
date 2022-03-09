@@ -211,7 +211,6 @@ if __name__ == "__main__":
     print("num features in X",len(docTermMatrix[0]))
 
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
-    tfIdfReducedDocTermMatrix, tfIdfReducedTokensLst= reduceVocab(tfIdfMatrix,tokensInAList)
     print(len(reducedDocTermMatrix))
     print(len(reducedDocTermMatrix[0]))
     print(len(reducedTokensLst))
@@ -224,5 +223,5 @@ if __name__ == "__main__":
     print("num features in va X", len(docTermMatrixVa[0]))
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
-    runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
+    runLogisticRegressionModel(reducedDocTermMatrix,tfIdfTermMatrixVa)
     
