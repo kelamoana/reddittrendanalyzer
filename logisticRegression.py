@@ -112,7 +112,6 @@ def tokenize(filename, matrix):
     return list(setOfTokens)
 
 def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
-    print
     for document in tokensMatrix:
         documentTermRow = np.zeros(len(tokensList))
         for token in document:
@@ -191,7 +190,7 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YTestData.txt")
+    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
 
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
@@ -230,6 +229,6 @@ if __name__ == "__main__":
     tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     print("num features in va X", len(docTermMatrixVa[0]))
 
-    runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
+    #runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
     runLogisticRegressionModel(tfIdfReducedDocTermMatrix,tfIdfTermMatrixVa)
     
