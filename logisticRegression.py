@@ -126,19 +126,15 @@ def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
 
 def createTFIDFmodel(bow_model):
 
-    print("here1")
     bow_model = np.array(bow_model,dtype=object)
-    print(bow_model.ndim)
 
     N = len(bow_model)
-    print("here2")
     #calculate IDF for all words
     IDF = {}
     for i in range(len(bow_model[0])):
         IDF[i] = math.log(len(bow_model)/ (1+sum(bow_model[:,i])))
     
     #replace values in tokensMatrix with tfidf
-    print("here3")
 
     tfIdfModel = []
 
@@ -151,18 +147,8 @@ def createTFIDFmodel(bow_model):
             documentTermRow[num] = (bow_model[i][num] / (1+ sum(bow_model[i])))*IDF[num]
         tfIdfModel.append(documentTermRow)
         
-
-    print("here4")
     
     return tfIdfModel
-
-
-
-
-
-    
-    
-
 
         
 
@@ -199,13 +185,12 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YTestData.txt")
+    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
 
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
     print("Score of accuracy on test data:", testAcc)
-
 # do the same for tf-idf
 # then run on logistic regression
 if __name__ == "__main__":
