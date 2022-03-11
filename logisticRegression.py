@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from collections import Counter
-#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST 
+#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
@@ -112,7 +112,6 @@ def tokenize(filename, matrix):
     return list(setOfTokens)
 
 def createBOWmodel(documentTermMatrix, tokensMatrix, tokensList):
-    print
     for document in tokensMatrix:
         documentTermRow = np.zeros(len(tokensList))
         for token in document:
@@ -133,7 +132,7 @@ def createTFIDFmodel(bow_model):
     IDF = {}
     for i in range(len(bow_model[0])):
         IDF[i] = math.log(len(bow_model)/ (1+sum(bow_model[:,i])))
-    
+
     #replace values in tokensMatrix with tfidf
 
     tfIdfModel = []
@@ -146,11 +145,11 @@ def createTFIDFmodel(bow_model):
         for num in output:
             documentTermRow[num] = (bow_model[i][num] / (1+ sum(bow_model[i])))*IDF[num]
         tfIdfModel.append(documentTermRow)
-        
-    
+
+
     return tfIdfModel
 
-        
+
 
 
 def reduceVocab(documentTermMatrix, tokensList):
@@ -199,7 +198,7 @@ if __name__ == "__main__":
     """ Split the Binary Classification Files into Training & Validation Files"""
     #splitData()
     """ BOW Logistic Regression """
-    
+
     tokenizeMatrix = []
     docTermMatrix = []
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
@@ -224,4 +223,3 @@ if __name__ == "__main__":
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
     runLogisticRegressionModel(reducedDocTermMatrix,tfIdfTermMatrixVa)
-    
