@@ -13,8 +13,8 @@ from collections import Counter
 def createBinaryClassificationFiles(filename):
     #modify this file to run it through test data instead of the training data
     file_obj = open(filename, "r", encoding='utf-8', errors='ignore')
-    Xbinary = open('data/logisticRegression/XTrainData.txt', 'w')
-    Ybinary = open('data/logisticRegression/YTrainData.txt', 'w')
+    Xbinary = open('data/logisticRegression/XtrainData.txt', 'w')
+    Ybinary = open('data/logisticRegression/YtrainData.txt', 'w')
     #get statistics on how much positive vs negative data we have
     numPositive = 0
     numNegative = 0
@@ -184,7 +184,7 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
-    y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
+    y_tr = np.genfromtxt("data/logisticRegression/YtrainData.txt")
     y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
 
     model = SGDClassifier()
