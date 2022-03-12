@@ -23,19 +23,19 @@ def vader_sentiment_score(sentence):
     # Calculate overall sentiment by compound score
     return 0 if polarity_dict['neg'] > polarity_dict['pos'] else 1
 
+if __name__ == "__main__":
+    sentences = test.get_sentences_and_classes()
+    correct_guess = 0
+    total_num = len(sentences)
+    i = 0
 
-sentences = test.get_sentences_and_classes()
-correct_guess = 0
-total_num = len(sentences)
-i = 0
+    print(f"Running VADER on corpus...")
+    for sentence, sentiment in sentences:
 
-print(f"Running VADER on corpus...")
-for sentence, sentiment in sentences:
+        if vader_sentiment_score(sentence) == int(sentiment):
+            correct_guess += 1
 
-    if vader_sentiment_score(sentence) == int(sentiment):
-        correct_guess += 1
+        print_progress_bar(i, total_num)
+        i += 1
 
-    print_progress_bar(i, total_num)
-    i += 1
-
-print(f"\n\nAccuracy Rate of VADER: {correct_guess/total_num}")
+    print(f"\n\nAccuracy Rate of VADER: {correct_guess/total_num}")

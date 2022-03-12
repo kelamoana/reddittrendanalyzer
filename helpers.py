@@ -249,6 +249,6 @@ if __name__ == "__main__":
 
     print("Executing Main in Helpers.py...")
 
-    convert_twitter_to_binary_classes("data/Twitter/test.txt", "data/Twitter/", "testBinary.txt")
-    convert_twitter_to_binary_classes("data/Twitter/training.txt", "data/Twitter/", "trainingBinary.txt")
-    convert_twitter_to_binary_classes("data/Twitter/validation.txt", "data/Twitter/", "validationBinary.txt")
+    # convert_twitter_to_binary_classes("data/Twitter/test.txt", "data/Twitter/", "testBinary.txt")
+    # convert_twitter_to_binary_classes("data/Twitter/training.txt", "data/Twitter/", "trainingBinary.txt")
+    # convert_twitter_to_binary_classes("data/Twitter/validation.txt", "data/Twitter/", "validationBinary.txt")

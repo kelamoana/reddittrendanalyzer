@@ -87,7 +87,7 @@ def splitData():
 
 def tokenize(filename, matrix):
     setOfTokens = set()
-    file_obj = open(filename)
+    file_obj = open(filename, errors='ignore')
     curr_line_lst = []
     for line in file_obj:
         modify_line = line.rstrip("\n").lower()
@@ -150,8 +150,6 @@ def createTFIDFmodel(bow_model):
     return tfIdfModel
 
 
-
-
 def reduceVocab(documentTermMatrix, tokensList):
     rareWordsIndices = set()
     npVersion = np.array(documentTermMatrix)
@@ -190,36 +188,96 @@ def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
     print("Score of accuracy on test data:", testAcc)
-# do the same for tf-idf
-# then run on logistic regression
-if __name__ == "__main__":
-    """ Created Binary Classification Files """
-    #createBinaryClassificationFiles("data/test.tsv")
-    """ Split the Binary Classification Files into Training & Validation Files"""
-    #splitData()
-    """ BOW Logistic Regression """
 
+
+def create_logreg_matrices(training_data="data/logisticRegression/XTrainData.txt"):
+    """
+    Generalized function to train tfidf. 
+    Parameters: Training data file.
+    Returns: TFIDF LR Model
+    """
+
+    # Create empty Matrices
+    tokenize_matrix = []
+    doc_term_matrix = []
+
+    # Tokenize Words
+    tokens_in_a_list = tokenize(training_data, tokenize_matrix)
+
+    # Create doc term and TFIDF matrix to return
+    doc_term_matrix = createBOWmodel(doc_term_matrix, tokenize_matrix, tokens_in_a_list)
+    tfidf_matrix = createTFIDFmodel(doc_term_matrix)
+    
+    return tfidf_matrix, doc_term_matrix, tokens_in_a_list
+
+def create_reduced_matrix(doc_term_matrix, tokens):
+    """
+    Reduces the amount of terms and tokens in the matrix and list, respectively.
+
+    Parameters: Doc Term Matrix and List of Tokens.
+    Returns: reduced DocTerm Matrix and Reduced Tokens.
+    """
+
+    # Reduced DocTerm Matrix and Reduced Tokens List
+    return reduceVocab(doc_term_matrix, tokens)
+
+def train_bow_and_tfidf(x_tr_data_file = "data/logisticRegression/XTrainData.txt", 
+                        y_tr_data_file="data/logisticRegression/YTrainData.txt"):
+
+    """
+    Trains a BOW and TFIDF LogReg models and returns it.
+
+    Parameters: Training Data File.
+    Returns: Bow and TFIDF LogReg Models.
+    """
+    
+    tfidf_matrix, doc_term_matrix, tokens_list = create_logreg_matrices(x_tr_data_file)
+    reduced_doc_term_matrix, reduced_tokens_list = create_reduced_matrix(doc_term_matrix, tokens_list)
+
+
+    y_tr = np.genfromtxt(y_tr_data_file)
+
+    bow_model = SGDClassifier()
+    bow_model.fit(reduced_doc_term_matrix, y_tr)
+
+    tfidf_model = SGDClassifier()
+    tfidf_model.fit(reduced_doc_term_matrix, y_tr)
+
+    return bow_model, tfidf_model
+
+
+if __name__ == "__main__":
+
+    # Created Binary Classification Files
+    # createBinaryClassificationFiles("data/test.tsv")
+    # Split the Binary Classification Files into Training & Validation Files
+    # splitData()
+
+    # BOW Logistic Regression
     tokenizeMatrix = []
     docTermMatrix = []
     tokensInAList = tokenize("data/logisticRegression/XTrainData.txt", tokenizeMatrix)
-    #print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
+    # print("number of reviews tokenizeMatrix:", len(tokenizeMatrix))
     docTermMatrix = createBOWmodel(docTermMatrix, tokenizeMatrix, tokensInAList)
     tfIdfMatrix = createTFIDFmodel(docTermMatrix)
-    #print("num reviews docTermMatrix", len(docTermMatrix))
-    #print(len(docTermMatrix))
-    print("num features in X",len(docTermMatrix[0]))
+    # print("num reviews docTermMatrix", len(docTermMatrix))
+    # print(len(docTermMatrix))
+    # print("num features in X", len(docTermMatrix[0]))
 
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
-    print(len(reducedDocTermMatrix))
-    print(len(reducedDocTermMatrix[0]))
-    print(len(reducedTokensLst))
-    #create validation equivalent of BOW model stuff
+    # print(len(reducedDocTermMatrix))
+    # print(len(reducedDocTermMatrix[0]))
+    # print(len(reducedTokensLst))
+    
+    # Create validation equivalent of BOW model
     tokenizeMatrixVa = []
     docTermMatrixVa = []
-    tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
+
+    # tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
+    tokenize("data/RedditRealtime/Dec/Russia.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
     tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
-    print("num features in va X", len(docTermMatrixVa[0]))
+    # print("num features in va X", len(docTermMatrixVa[0]))
 
     runLogisticRegressionModel(reducedDocTermMatrix, docTermMatrixVa)
-    runLogisticRegressionModel(reducedDocTermMatrix,tfIdfTermMatrixVa)
+    runLogisticRegressionModel(reducedDocTermMatrix, tfIdfTermMatrixVa)
