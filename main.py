@@ -4,6 +4,4 @@
 # Ethan H. Nguyen
 # The following module will be to run the software
 
-import neuralnetworks
-
 print("testing.... Hello World!")
