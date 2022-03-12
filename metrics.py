@@ -108,11 +108,11 @@ def get_rnn_predictions(real_data_file):
 
 def get_bow_predictions(real_data_file):
     global bow_model
-
+    global tokens_list
     # file_obj = open(real_data_file, 'w', encoding='utf-8', errors='ignore')
     # lines = file_obj.readlines()
 
-    tfidf_matrix, doc_term_matrix, tokens_in_a_list = create_logreg_matrices(real_data_file)
+    tfidf_matrix, doc_term_matrix, tokens_in_a_list = create_logreg_matrices(real_data_file, tokens_list)
     return bow_model.predict(doc_term_matrix)     
 
 
@@ -127,6 +127,6 @@ if __name__ == "__main__":
     # create_predictions(get_rnn_predictions, write_predictions, "rnn")
 
     # Run LogReg Predictions
-    bow_model, tfidf_model = train_bow_and_tfidf()
+    bow_model, tfidf_model, tokens_list = train_bow_and_tfidf()
     create_predictions(get_bow_predictions, write_predictions, "logregbow")
     

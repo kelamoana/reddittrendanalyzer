@@ -97,10 +97,8 @@ def tokenize(filename, matrix):
             if char not in [',', '.', ';', '?','!',':']:
                 new_line += char
         new_line_lst = new_line.split()
-        #convert contraction -> expanded form
+        
         for word in new_line_lst:
-            #if "'" in word:
-            #    contractionsDict.get(word)
             #ignore if it's a stopword
             if word not in stopwords.words('english'):
                 curr_line_lst.append(word)
@@ -157,12 +155,7 @@ def reduceVocab(documentTermMatrix, tokensList):
         colValues = npVersion[:,col_index]
         if sum(colValues) <= 1:
             rareWordsIndices.add(col_index)
-        '''if sum(colValues) == 2:
-            rareWordsIndices.add(col_index)
-        if sum(colValues) == 3:
-            rareWordsIndices.add(col_index)
-        if sum(colValues) == 4:
-            countOfInstances += 1'''
+
     print('extracted rare word occurrances')
     reducedDocumentTermMatrix = []
     for row_index in range(len(npVersion)):
@@ -183,14 +176,15 @@ def reduceVocab(documentTermMatrix, tokensList):
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
     y_va = np.genfromtxt("data/Twitter/YtestBinary.txt")
-
+    print(len(documentTermMatrix[0]))
+    print(len(documentTermMatrixVa[0]))
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
     print("Score of accuracy on test data:", testAcc)
 
 
-def create_logreg_matrices(training_data="data/logisticRegression/XTrainData.txt"):
+def create_logreg_matrices(training_data="data/logisticRegression/XTrainData.txt", train_tokens_list=None):
     """
     Generalized function to train tfidf. 
     Parameters: Training data file.
@@ -203,11 +197,16 @@ def create_logreg_matrices(training_data="data/logisticRegression/XTrainData.txt
 
     # Tokenize Words
     tokens_in_a_list = tokenize(training_data, tokenize_matrix)
-
+    print("number of tokens", len(tokens_in_a_list))
+    print("len of tokenize_matrix", len(tokenize_matrix))
+    print("width of tokenize_matrix", len(tokenize_matrix[0]))
     # Create doc term and TFIDF matrix to return
+    if (train_tokens_list != None):
+        tokens_in_a_list = train_tokens_list
     doc_term_matrix = createBOWmodel(doc_term_matrix, tokenize_matrix, tokens_in_a_list)
     tfidf_matrix = createTFIDFmodel(doc_term_matrix)
-    
+    print("should be num of documents", len(doc_term_matrix))
+    print("should be number of terms", len(doc_term_matrix[0]))
     return tfidf_matrix, doc_term_matrix, tokens_in_a_list
 
 def create_reduced_matrix(doc_term_matrix, tokens):
@@ -233,7 +232,10 @@ def train_bow_and_tfidf(x_tr_data_file = "data/logisticRegression/XTrainData.txt
     
     tfidf_matrix, doc_term_matrix, tokens_list = create_logreg_matrices(x_tr_data_file)
     reduced_doc_term_matrix, reduced_tokens_list = create_reduced_matrix(doc_term_matrix, tokens_list)
-
+    print("after reduce matrix function")
+    print("number of tokens", len(reduced_tokens_list))
+    print("should be num of documents", len(reduced_doc_term_matrix))
+    print("should be number of terms", len(reduced_doc_term_matrix[0]))
 
     y_tr = np.genfromtxt(y_tr_data_file)
 
@@ -243,7 +245,7 @@ def train_bow_and_tfidf(x_tr_data_file = "data/logisticRegression/XTrainData.txt
     tfidf_model = SGDClassifier()
     tfidf_model.fit(reduced_doc_term_matrix, y_tr)
 
-    return bow_model, tfidf_model
+    return bow_model, tfidf_model, reduced_tokens_list
 
 
 if __name__ == "__main__":
@@ -274,7 +276,7 @@ if __name__ == "__main__":
     docTermMatrixVa = []
 
     # tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
-    tokenize("data/RedditRealtime/Dec/Russia.txt", tokenizeMatrixVa)
+    tokenize("data/Twitter/XtestBinary.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
     tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     # print("num features in va X", len(docTermMatrixVa[0]))
