@@ -6,5 +6,6 @@ reddit = praw.Reddit(
   user_agent = "python:com.sentimentanalyzer:v1.0.0",
 )
 
-for submission in reddit.subreddit("UCI").hot(limit=100):
+for submission in reddit.subreddit("UCI").hot(limit=10):
     print(submission.title)
+
