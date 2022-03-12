@@ -184,7 +184,7 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
+    y_va = np.genfromtxt("data/Twitter/YtestBinary.txt")
 
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     tfIdfMatrix = createTFIDFmodel(docTermMatrix)
     #print("num reviews docTermMatrix", len(docTermMatrix))
     #print(len(docTermMatrix))
-    print("num features in X",len(docTermMatrix[0]))
+    #print("num features in X",len(docTermMatrix[0]))
 
     reducedDocTermMatrix, reducedTokensLst = reduceVocab(docTermMatrix, tokensInAList)
     print(len(reducedDocTermMatrix))
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     #create validation equivalent of BOW model stuff
     tokenizeMatrixVa = []
     docTermMatrixVa = []
-    tokenize("data/logisticRegression/XValidationData.txt", tokenizeMatrixVa)
+    tokenize("data/Twitter/XtestBinary.txt", tokenizeMatrixVa)
     docTermMatrixVa = createBOWmodel(docTermMatrixVa, tokenizeMatrixVa, reducedTokensLst)
     tfIdfTermMatrixVa = createTFIDFmodel(docTermMatrixVa)
     print("num features in va X", len(docTermMatrixVa[0]))

@@ -33,7 +33,7 @@ def filter_stopwords(sentence):
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
 
-def get_sentences_and_classes(corpus = "data/Xtrain_testRNN.txt", classes = "data/Ytrain_testRNN.txt"):
+def get_sentences_and_classes(corpus = "data/Twitter/Xtrain_testRNN.txt", classes = "data/Twitter/Ytrain_testRNN.txt"):
     """
     A function to process all of the training data and turn it
     into a usable data structure.
@@ -76,19 +76,13 @@ def convert_to_list_of_words(sentences_with_classes):
 
 
 lines = get_sentences_and_classes()
+
 sentiments = np.asarray([float(line[1]) for line in lines])
 review_lines = np.asarray(convert_to_list_of_words([line[0] for line in lines]))
 
 EMBEDDING_DIM = 100
 
 print("Build model...")
-#corpus = api.load('text8')
-
-# Word Vector model
-# model = gensim.models.Word2Vec(sentences=review_lines, vector_size=EMBEDDING_DIM, window=5, workers=4, min_count=1)
-# #filename = "text8Corpus_word2vec.txt"
-# filename = "reddit_embedding_word2vec.txt"
-# model.wv.save_word2vec_format(filename, binary=False)
 
 corpus = api.load('text8')
 model = gensim.models.Word2Vec(corpus)
@@ -149,7 +143,7 @@ model.compile(loss = 'binary_crossentropy', optimizer=opt, metrics = ['accuracy'
 
 
 # Shuffle all data and prepare to split
-VALIDATION_SPLIT = 0.1873
+VALIDATION_SPLIT = 0.084285
 indices = np.arange(review_pad.shape[0])
 #np.random.shuffle(indices)
 review_pad = review_pad[indices]
