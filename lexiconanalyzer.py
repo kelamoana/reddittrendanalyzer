@@ -1,5 +1,6 @@
+import helpers
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import test
+from recurringNeuralNetworks import get_sentences_and_classes
 from helpers import print_progress_bar
 
 SID_OBJ = SentimentIntensityAnalyzer() 
@@ -24,7 +25,7 @@ def vader_sentiment_score(sentence):
     return 0 if polarity_dict['neg'] > polarity_dict['pos'] else 1
 
 if __name__ == "__main__":
-    sentences = test.get_sentences_and_classes()
+    sentences = helpers.get_sentences_and_classes()
     correct_guess = 0
     total_num = len(sentences)
     i = 0

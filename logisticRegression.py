@@ -181,8 +181,8 @@ def reduceVocab(documentTermMatrix, tokensList):
 
 
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
-    y_tr = np.genfromtxt("data/logisticRegression/YtrainData.txt")
-    y_va = np.genfromtxt("data/logisticRegression/YValidationData.txt")
+    y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
+    y_va = np.genfromtxt("data/Twitter/YtestBinary.txt")
 
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)

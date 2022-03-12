@@ -33,7 +33,7 @@ def filter_stopwords(sentence):
     # Remove punc and add word for each non-stop word
     return [re.sub(r'[^\w\s]', '', w) for w in word_list if w not in stopwords]
 
-def get_sentences_and_classes(corpus = "data/Xtrain_testRNN.txt", classes = "data/Ytrain_testRNN.txt"):
+def get_sentences_and_classes(corpus = "data/Twitter/Xtrain_testRNN.txt", classes = "data/Twitter/Ytrain_testRNN.txt"):
     """
     A function to process all of the training data and turn it
     into a usable data structure.
