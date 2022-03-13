@@ -7,7 +7,9 @@ from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from collections import Counter
-#NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST
+
+
+# NOTE: LEAVE THE TEST.TSV FILE ALONE - THIS SHOULD BE ACTUAL TEST
 # create train & validation data files in the format of BOW (text files)
 
 def createBinaryClassificationFiles(filename):
@@ -176,8 +178,8 @@ def reduceVocab(documentTermMatrix, tokensList):
 def runLogisticRegressionModel(documentTermMatrix, documentTermMatrixVa):
     y_tr = np.genfromtxt("data/logisticRegression/YTrainData.txt")
     y_va = np.genfromtxt("data/Twitter/YtestBinary.txt")
-    print(len(documentTermMatrix[0]))
-    print(len(documentTermMatrixVa[0]))
+    # print(len(documentTermMatrix[0]))
+    # print(len(documentTermMatrixVa[0]))
     model = SGDClassifier()
     model.fit(documentTermMatrix, y_tr)
     testAcc = model.score(documentTermMatrixVa, y_va)
@@ -197,16 +199,16 @@ def create_logreg_matrices(training_data="data/logisticRegression/XTrainData.txt
 
     # Tokenize Words
     tokens_in_a_list = tokenize(training_data, tokenize_matrix)
-    print("number of tokens", len(tokens_in_a_list))
-    print("len of tokenize_matrix", len(tokenize_matrix))
-    print("width of tokenize_matrix", len(tokenize_matrix[0]))
+    # print("number of tokens", len(tokens_in_a_list))
+    # print("len of tokenize_matrix", len(tokenize_matrix))
+    # print("width of tokenize_matrix", len(tokenize_matrix[0]))
     # Create doc term and TFIDF matrix to return
     if (train_tokens_list != None):
         tokens_in_a_list = train_tokens_list
     doc_term_matrix = createBOWmodel(doc_term_matrix, tokenize_matrix, tokens_in_a_list)
     tfidf_matrix = createTFIDFmodel(doc_term_matrix)
-    print("should be num of documents", len(doc_term_matrix))
-    print("should be number of terms", len(doc_term_matrix[0]))
+    # print("should be num of documents", len(doc_term_matrix))
+    # print("should be number of terms", len(doc_term_matrix[0]))
     return tfidf_matrix, doc_term_matrix, tokens_in_a_list
 
 def create_reduced_matrix(doc_term_matrix, tokens):
@@ -232,10 +234,10 @@ def train_bow_and_tfidf(x_tr_data_file = "data/logisticRegression/XTrainData.txt
     
     tfidf_matrix, doc_term_matrix, tokens_list = create_logreg_matrices(x_tr_data_file)
     reduced_doc_term_matrix, reduced_tokens_list = create_reduced_matrix(doc_term_matrix, tokens_list)
-    print("after reduce matrix function")
-    print("number of tokens", len(reduced_tokens_list))
-    print("should be num of documents", len(reduced_doc_term_matrix))
-    print("should be number of terms", len(reduced_doc_term_matrix[0]))
+    # print("after reduce matrix function")
+    # print("number of tokens", len(reduced_tokens_list))
+    # print("should be num of documents", len(reduced_doc_term_matrix))
+    # print("should be number of terms", len(reduced_doc_term_matrix[0]))
 
     y_tr = np.genfromtxt(y_tr_data_file)
 
