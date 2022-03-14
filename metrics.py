@@ -289,7 +289,7 @@ def get_weekly_totals(model, month, subreddit, posts_per_week=20):
         # append 0 and 1 totals.
 
         if count == posts_per_week:
-            totals.append((running_sum, 20-running_sum)) # (# of 0s, # of 1s) Binary so only need to track 0s
+            totals.append((posts_per_week-running_sum, running_sum)) # (# of 0s, # of 1s) Binary so only need to track 0s
             count = 1
             running_sum = 0
 
