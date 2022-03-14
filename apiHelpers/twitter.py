@@ -1,3 +1,8 @@
+# CS 175 Winter 2022 - Reddit Trend Analyzer
+# Cullen P.P. Moana
+# Sushmasri Katakam
+# Ethan H. Nguyen
+
 import tweepy
 
 # Your app's bearer token can be found under the Authentication Tokens section

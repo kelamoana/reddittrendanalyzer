@@ -1,3 +1,8 @@
+# CS 175 Winter 2022 - Reddit Trend Analyzer
+# Cullen P.P. Moana
+# Sushmasri Katakam
+# Ethan H. Nguyen
+
 import helpers
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from recurringNeuralNetworks import get_sentences_and_classes

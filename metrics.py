@@ -1,7 +1,13 @@
+# CS 175 Winter 2022 - Reddit Trend Analyzer
+# Cullen P.P. Moana
+# Sushmasri Katakam
+# Ethan H. Nguyen
+
 from cProfile import label
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pickle
 from logisticRegression import train_bow_and_tfidf, create_logreg_matrices, reduceVocab
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
@@ -17,6 +23,7 @@ MONTHS = ['Jul', 'Dec', 'Jan', 'Feb',]
 SUBREDDITS = ['Russia', 'Ukraine', 'UCI']
 MODELS = ['lexiconanalyzer', 'logregbow', 'logregtfidf', 'rnn']
 METRIC_TYPES = ['monthlyavgs', 'monthlyposnegtotals', 'weeklyavgs', 'weeklyposnegtotals']
+
 
 
 def write_predictions(predictions, model, month, subreddit):
@@ -322,6 +329,7 @@ def display_weekly_averages(model, subreddit):
     plt.xticks(x_pos, x_axis, rotation="vertical", fontweight=400)
     
     plt.show()
+    # plt.savefig(f"graphs/{subreddit}/WeeklyAvgs_{model.upper()}.png") # Save PNG
 
 def display_monthly_averages(model, subreddit):
     
@@ -344,6 +352,7 @@ def display_monthly_averages(model, subreddit):
     plt.xticks(x_pos, df["Month"], rotation="vertical", fontweight=400)
     
     plt.show()
+    # plt.savefig(f"graphs/{subreddit}/MonthlyAvgs_{model.upper()}.png") # Save PNG
 
 def display_weekly_totals(model, subreddit):
     
@@ -369,6 +378,7 @@ def display_weekly_totals(model, subreddit):
     plt.xticks(x_pos, x_axis, rotation="vertical", fontweight=400)
     
     plt.show()
+    # plt.savefig(f"graphs/{subreddit}/WeeklyTotals_{model.upper()}.png")
 
 def display_monthly_totals(model, subreddit):
     
@@ -393,6 +403,7 @@ def display_monthly_totals(model, subreddit):
     plt.xticks(x_pos, df["Month"], rotation="vertical", fontweight=400)
     
     plt.show()
+    # plt.savefig(f"graphs/{subreddit}/MonthlyTotals_{model.upper()}.png") # Save PNG
 
 if __name__ == "__main__":
     print("Executing Metrics.py ...")
@@ -402,10 +413,17 @@ if __name__ == "__main__":
 
     # Run RNN Predictions:
     # rnn_model = train_rnn_model()
+    # rnn_model.save('savedmodels/rnn') # Save the model for future use
     # create_predictions(get_rnn_predictions, write_predictions, "rnn")
 
     # Run LogReg Predictions
     # bow_model, tfidf_model, tokens_list = train_bow_and_tfidf()
+    
+    # f = open('savedmodels/logregbow/model.pickle', 'wb')
+    # pickle.dump(bow_model, f)
+    # f = open('savedmodels/logregtfidf/model.pickle', 'wb')
+    # pickle.dump(tfidf_model, f)
+
     # create_predictions(get_bow_predictions, write_predictions, "logregbow")
     # create_predictions(get_tfidf_predictions, write_predictions, "logregtfidf")
     
@@ -431,9 +449,10 @@ if __name__ == "__main__":
     #         write_monthly_totals(model, subreddit)
     
     # Print out all statistics calculated
-    for model in MODELS:
+    METRIC_FUNCS = [display_weekly_averages, display_monthly_averages, 
+                    display_weekly_totals, display_monthly_totals]
+                    
+    for metric_func in METRIC_FUNCS:
         for subreddit in SUBREDDITS:
-            display_weekly_averages(model, subreddit)
-            display_monthly_averages(model, subreddit)
-            display_weekly_totals(model, subreddit)
-            display_monthly_totals(model, subreddit)
+            for model in MODELS:
+                metric_func(model, subreddit)

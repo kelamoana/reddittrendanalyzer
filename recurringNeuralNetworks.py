@@ -154,7 +154,7 @@ def train_rnn_model():
     print("Training RNN")
     #maybe change num of epochs to 20? (before validation goes down)
     model.fit(X_train_pad, y_train, batch_size=128, epochs=20, validation_data=(X_test_pad, y_test), verbose=2)
-
+    
     return model
 
 if __name__ == "__main__":
