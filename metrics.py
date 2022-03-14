@@ -337,7 +337,7 @@ def display_monthly_averages(model, subreddit):
     plt.plot(x_pos, df["Average"], 'D', color="Orange")
 
     # Add titles
-    plt.title(f"Weekly Sentiment Averages Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.title(f"Monthly Sentiment Averages Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
     plt.xlabel("Month & Week Number")
     plt.ylabel("Avg. Sentiment of Top 20 Posts")
     plt.subplots_adjust(bottom=0.15)
@@ -386,7 +386,7 @@ def display_monthly_totals(model, subreddit):
 
     # Add titles
     plt.legend(frameon=False, fontsize=15)
-    plt.title(f"Weekly Pos/Neg Totals Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.title(f"Monthly Pos/Neg Totals Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
     plt.xlabel("Month & Week Number")
     plt.ylabel("Pos/Neg Totals for Sentiments")
     plt.subplots_adjust(bottom=0.15)
