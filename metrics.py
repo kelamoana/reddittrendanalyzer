@@ -1,5 +1,10 @@
+from cProfile import label
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from logisticRegression import train_bow_and_tfidf, create_logreg_matrices, reduceVocab
+from matplotlib import cm
+from matplotlib.colors import ListedColormap
 from lexiconanalyzer import vader_sentiment_score
 from recurringNeuralNetworks import train_rnn_model, convert_to_list_of_words
 from keras.preprocessing.text import Tokenizer
@@ -295,6 +300,100 @@ def get_weekly_totals(model, month, subreddit, posts_per_week=20):
 
     return totals
 
+def display_weekly_averages(model, subreddit):
+    
+    # Create Data File of the TSV
+    df = pd.read_csv(f"{METRICS_PATH}/weeklyavgs/{model}/{subreddit}.tsv", sep="\t")
+    
+    # Create the Individual X Axis plots
+    x_axis = [month + " w" + str(week) for month, week in zip(df["Month"], df["Week"])]
+    x_pos = np.arange(len(x_axis))
+
+    # Define the size of the plot
+    plt.figure(figsize=(10,7))
+    plt.plot(x_pos, df["Average"], '--')
+    plt.plot(x_pos, df["Average"], 'D', color="Orange")
+
+    # Add titles
+    plt.title(f"Weekly Sentiment Averages Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.xlabel("Month & Week Number")
+    plt.ylabel("Avg. Sentiment of Top 20 Posts")
+    plt.subplots_adjust(bottom=0.15)
+    plt.xticks(x_pos, x_axis, rotation="vertical", fontweight=400)
+    
+    plt.show()
+
+def display_monthly_averages(model, subreddit):
+    
+    # Create Data File of the TSV
+    df = pd.read_csv(f"{METRICS_PATH}/monthlyavgs/{model}/{subreddit}.tsv", sep="\t")
+    
+    # Create the Individual X Axis plots
+    x_pos = np.arange(len(df["Month"]))
+
+    # Define the size of the plot
+    plt.figure(figsize=(10,7))
+    plt.plot(x_pos, df["Average"], '--')
+    plt.plot(x_pos, df["Average"], 'D', color="Orange")
+
+    # Add titles
+    plt.title(f"Weekly Sentiment Averages Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.xlabel("Month & Week Number")
+    plt.ylabel("Avg. Sentiment of Top 20 Posts")
+    plt.subplots_adjust(bottom=0.15)
+    plt.xticks(x_pos, df["Month"], rotation="vertical", fontweight=400)
+    
+    plt.show()
+
+def display_weekly_totals(model, subreddit):
+    
+    # Create Data File of the TSV
+    df = pd.read_csv(f"{METRICS_PATH}/weeklyposnegtotals/{model}/{subreddit}.tsv", sep="\t")
+    
+    # Create the Individual X Axis plots
+    x_axis = [month + " w" + str(week) for month, week in zip(df["Month"], df["Week"])]
+    x_pos = np.arange(len(x_axis))
+    width = 0.4
+
+    # Define the size of the plot
+    plt.figure(figsize=(10,7))
+    plt.bar(x_pos-0.2, df["Pos"], width, color="Blue", label="Pos")
+    plt.bar(x_pos+0.2, df["Neg"], width, color="Orange", label="Neg")
+
+    # Add titles
+    plt.legend(frameon=False, fontsize=15)
+    plt.title(f"Weekly Pos/Neg Totals Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.xlabel("Month & Week Number")
+    plt.ylabel("Pos/Neg Totals for Sentiments")
+    plt.subplots_adjust(bottom=0.15)
+    plt.xticks(x_pos, x_axis, rotation="vertical", fontweight=400)
+    
+    plt.show()
+
+def display_monthly_totals(model, subreddit):
+    
+    # Create Data File of the TSV
+    df = pd.read_csv(f"{METRICS_PATH}/monthlyposnegtotals/{model}/{subreddit}.tsv", sep="\t")
+    
+    # Create the Individual X Axis plots
+    x_pos = np.arange(len(df["Month"]))
+    width = 0.4
+
+    # Define the size of the plot
+    plt.figure(figsize=(10,7))
+    plt.bar(x_pos-0.2, df["Pos"], width, color="Blue", label="Pos")
+    plt.bar(x_pos+0.2, df["Neg"], width, color="Orange", label="Neg")
+
+    # Add titles
+    plt.legend(frameon=False, fontsize=15)
+    plt.title(f"Weekly Pos/Neg Totals Dec 2021 - Feb 2022 for {model.upper()} on r/{subreddit}")
+    plt.xlabel("Month & Week Number")
+    plt.ylabel("Pos/Neg Totals for Sentiments")
+    plt.subplots_adjust(bottom=0.15)
+    plt.xticks(x_pos, df["Month"], rotation="vertical", fontweight=400)
+    
+    plt.show()
+
 if __name__ == "__main__":
     print("Executing Metrics.py ...")
     
@@ -312,21 +411,29 @@ if __name__ == "__main__":
     
 
     # Create Weekly Averages for all models
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_weekly_avgs(model, subreddit)
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_weekly_avgs(model, subreddit)
 
     # Create Monthly Averages for all models
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_monthly_avgs(model, subreddit)
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_monthly_avgs(model, subreddit)
 
     # Create Weekly Totals
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_weekly_totals(model, subreddit)
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_weekly_totals(model, subreddit)
 
     # Create Monthly Totals
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_monthly_totals(model, subreddit)
+    
+    # Print out all statistics calculated
     for model in MODELS:
         for subreddit in SUBREDDITS:
-            write_monthly_totals(model, subreddit)
+            display_weekly_averages(model, subreddit)
+            display_monthly_averages(model, subreddit)
+            display_weekly_totals(model, subreddit)
+            display_monthly_totals(model, subreddit)
