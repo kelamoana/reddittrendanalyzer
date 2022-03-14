@@ -101,8 +101,8 @@ def write_monthly_totals(model, subreddit):
         
         # Grab the weekly totals for each month
         totals = get_weekly_totals(model, month, subreddit)
-        neg = sum([t[0] for t in totals])
-        pos = sum([t[1] for t in totals])
+        neg = sum([t[1] for t in totals])
+        pos = sum([t[0] for t in totals])
 
         # Write totals
         file_obj.write(f"{month}\t{pos}\t{neg}\n")
@@ -426,9 +426,9 @@ if __name__ == "__main__":
     #         write_weekly_totals(model, subreddit)
 
     # Create Monthly Totals
-    # for model in MODELS:
-    #     for subreddit in SUBREDDITS:
-    #         write_monthly_totals(model, subreddit)
+    for model in MODELS:
+        for subreddit in SUBREDDITS:
+            write_monthly_totals(model, subreddit)
     
     # Print out all statistics calculated
     for model in MODELS:
