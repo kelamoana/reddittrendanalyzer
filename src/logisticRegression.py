@@ -54,8 +54,6 @@ def createBinaryClassificationFiles(filename):
     Ybinary.close()
     Xbinary.close()
     file_obj.close()
-    print(numPositive)
-    print(numNegative)
 
 def splitData():
     XbinaryObj = open('../data/logisticRegression/Xbinary.txt')

@@ -57,7 +57,7 @@ IF THE GRADER IS UNABLE TO RUN THE CODE:
 
 We have included PNGs of the outputs of each of our models 
 and the metrics associated with them. They are stored in the
-graphs folder, and organized by subreddit. The name of each inidividual
+graphs folder, and organized by subreddit. The name of each individual
 model and metric is attached to each graph, and will provide the statistics 
 on our sentiment analysis.
 
