@@ -6,7 +6,7 @@
 
 print("Executing main.py...")
 
-# Pull Real-Time Data
+# import Data to use
 
 # Create LexAnalyzer
 
