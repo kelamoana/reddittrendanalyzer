@@ -14,3 +14,4 @@ reddit = praw.Reddit(
 for submission in reddit.subreddit("UCI").hot(limit=10):
     print(submission.title)
 
+print("hello world")
