@@ -9,8 +9,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 from logisticRegression import train_bow_and_tfidf, create_logreg_matrices, reduceVocab
-from matplotlib import cm
-from matplotlib.colors import ListedColormap
 from lexiconanalyzer import vader_sentiment_score
 from recurringNeuralNetworks import train_rnn_model, convert_to_list_of_words
 from keras.preprocessing.text import Tokenizer

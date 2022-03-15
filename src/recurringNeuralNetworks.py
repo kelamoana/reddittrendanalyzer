@@ -1,14 +1,16 @@
-from sys import set_asyncgen_hooks
-from tokenize import Token
+# CS 175 Winter 2022 - Reddit Trend Analyzer
+# Cullen P.P. Moana
+# Sushmasri Katakam
+# Ethan H. Nguyen
+
 import gensim
 import gensim.downloader as api
 import nltk
 import re
 import pandas as pd
 import numpy as np
-import os
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Embedding, GRU, Conv1D, MaxPooling1D, Flatten
+from keras.layers import Dense, LSTM, Embedding
 from keras.initializers import Constant
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
