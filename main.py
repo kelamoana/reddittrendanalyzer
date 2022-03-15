@@ -4,7 +4,7 @@
 # Ethan H. Nguyen
 # The following module will be to run the software for the TA
 
-from metrics import *
+from src.metrics import *
 
 EXAMPLE_MODELS = ['lexiconanalyzer']
 print("Executing main.py...")

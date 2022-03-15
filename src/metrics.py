@@ -8,15 +8,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-from logisticRegression import train_bow_and_tfidf, create_logreg_matrices, reduceVocab
-from lexiconanalyzer import vader_sentiment_score
-from recurringNeuralNetworks import train_rnn_model, convert_to_list_of_words
+from src.logisticRegression import train_bow_and_tfidf, create_logreg_matrices, reduceVocab
+from src.lexiconanalyzer import vader_sentiment_score
+from src.recurringNeuralNetworks import train_rnn_model, convert_to_list_of_words
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 
-DATA_PATH = '../data/RedditRealtime'
-METRICS_PATH = '../data/Metrics'
-PREDICTIONS_PATH = '../data/RedditPredictions'
+DATA_PATH = 'data/RedditRealtime'
+METRICS_PATH = 'data/Metrics'
+PREDICTIONS_PATH = 'data/RedditPredictions'
 MONTHS = ['Jul', 'Dec', 'Jan', 'Feb',]
 SUBREDDITS = ['Russia', 'Ukraine', 'UCI']
 MODELS = ['lexiconanalyzer', 'logregbow', 'logregtfidf', 'rnn']
@@ -408,6 +408,10 @@ METRIC_FUNCS = [display_weekly_averages, display_monthly_averages,
 
 if __name__ == "__main__":
     print("Executing Metrics.py ...")
+
+    # DATA_PATH = '../data/RedditRealtime'
+    # METRICS_PATH = '../data/Metrics'
+    # PREDICTIONS_PATH = '../data/RedditPredictions'
     
     # Run Lexicon Predictions:
     create_predictions(get_lexicon_predictions, write_predictions, "lexiconanalyzer")

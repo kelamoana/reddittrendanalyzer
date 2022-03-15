@@ -3,8 +3,7 @@
 # Sushmasri Katakam
 # Ethan H. Nguyen
 
-from multiprocessing.sharedctypes import Value
-import helpers
+import src.helpers
 import numpy as np
 import math
 import nltk
