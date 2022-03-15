@@ -3,10 +3,10 @@
 # Sushmasri Katakam
 # Ethan H. Nguyen
 
-import helpers
+import src.helpers
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from recurringNeuralNetworks import get_sentences_and_classes
-from helpers import print_progress_bar
+from src.recurringNeuralNetworks import get_sentences_and_classes
+from src.helpers import print_progress_bar
 
 SID_OBJ = SentimentIntensityAnalyzer() 
 
