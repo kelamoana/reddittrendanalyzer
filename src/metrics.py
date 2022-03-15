@@ -172,7 +172,6 @@ def create_predictions(get_pred_func, write_pred_func, model):
             # Write predictions to the files, after attaining them.
             write_pred_func(get_pred_func(f"{DATA_PATH}/{month}/{subreddit}.txt"), model, month, subreddit)
 
-
 def thresh(prediction):
     """
     Threshold function that returns 0 or 1 for the RNN prediction.
@@ -405,6 +404,10 @@ def display_monthly_totals(model, subreddit):
     plt.show()
     # plt.savefig(f"graphs/{subreddit}/MonthlyTotals_{model.upper()}.png") # Save PNG
 
+# Placed Here because the list will throw an error at Run Time if at the top
+METRIC_FUNCS = [display_weekly_averages, display_monthly_averages, 
+                    display_weekly_totals, display_monthly_totals]
+
 if __name__ == "__main__":
     print("Executing Metrics.py ...")
     
@@ -412,45 +415,43 @@ if __name__ == "__main__":
     create_predictions(get_lexicon_predictions, write_predictions, "lexiconanalyzer")
 
     # Run RNN Predictions:
-    rnn_model = train_rnn_model()
+    # rnn_model = train_rnn_model()
     # rnn_model.save('savedmodels/rnn') # Save the model for future use
-    create_predictions(get_rnn_predictions, write_predictions, "rnn")
+    # create_predictions(get_rnn_predictions, write_predictions, "rnn")
 
     # Run LogReg Predictions
-    bow_model, tfidf_model, tokens_list = train_bow_and_tfidf()
+    # bow_model, tfidf_model, tokens_list = train_bow_and_tfidf()
     
     # f = open('savedmodels/logregbow/model.pickle', 'wb')
     # pickle.dump(bow_model, f)
     # f = open('savedmodels/logregtfidf/model.pickle', 'wb')
     # pickle.dump(tfidf_model, f)
 
-    create_predictions(get_bow_predictions, write_predictions, "logregbow")
-    create_predictions(get_tfidf_predictions, write_predictions, "logregtfidf")
+    # create_predictions(get_bow_predictions, write_predictions, "logregbow")
+    # create_predictions(get_tfidf_predictions, write_predictions, "logregtfidf")
     
 
-    # Create Weekly Averages for all models
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_weekly_avgs(model, subreddit)
+    # # Create Weekly Averages for all models
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_weekly_avgs(model, subreddit)
 
-    # Create Monthly Averages for all models
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_monthly_avgs(model, subreddit)
+    # # Create Monthly Averages for all models
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_monthly_avgs(model, subreddit)
 
-    # Create Weekly Totals
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_weekly_totals(model, subreddit)
+    # # Create Weekly Totals
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_weekly_totals(model, subreddit)
 
-    # Create Monthly Totals
-    for model in MODELS:
-        for subreddit in SUBREDDITS:
-            write_monthly_totals(model, subreddit)
+    # # Create Monthly Totals
+    # for model in MODELS:
+    #     for subreddit in SUBREDDITS:
+    #         write_monthly_totals(model, subreddit)
     
     # Print out all statistics calculated
-    METRIC_FUNCS = [display_weekly_averages, display_monthly_averages, 
-                    display_weekly_totals, display_monthly_totals]
                     
     for metric_func in METRIC_FUNCS:
         for subreddit in SUBREDDITS:
